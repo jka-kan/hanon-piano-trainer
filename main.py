@@ -86,7 +86,7 @@ def init_app(first=False):
         grid.destroy()
     print(grid_group)
 
-    pianoroll.init_table()
+    #     pianoroll.init_table()
 
     grid_group = pygame.sprite.Group()
 
@@ -96,6 +96,7 @@ def init_app(first=False):
     #    grid_a.precise_x = float(grid_a.rect.left)  # This can be used later to create smoother scroll
 
     # Second grid just off-screen to the right
+
     grid_b = PianoRollSprite(settings.height, settings.width, "B", 2)
     grid_b.rect.topleft = (settings.width, 0)  # +1
     #    grid_b.precise_x = float(grid_b.rect.left)
@@ -184,6 +185,9 @@ def main():
     # To be used later: adjust time gaps when starting new grid
     midi_zero = pygame.midi.time()
 
+    # Measure pauses in playing. After a pause check whether played notes match with song notes.
+    pause_start = None
+
     while running:
         # Keep original timing relation for the grid logic
         # New pianoroll grid gets always the same time codes as previous ones
@@ -228,6 +232,15 @@ def main():
             pitch = message[0][1] - 17
             note_time = message[1] / 1000 - rounds
             grid_order[1].make_bar(channel, pitch, note_time)  # , line_time)
+            pause_start = time.perf_counter()
+
+        try:
+            pause_time = time.perf_counter() - pause_start
+            if pause_time >= 1:
+                pianoroll.slots.check_slots()
+                pause_start = None
+        except TypeError:
+            pass
 
         # Wrap if the grid is finished (out of the screen)
         if grid_finished:
@@ -317,7 +330,7 @@ def main():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("bpm", type=int, help="BPM", default=40)
+    parser.add_argument("bpm", type=int, help="BPM")
     args = parser.parse_args()
     print(args.bpm)
     settings.bpm = args.bpm

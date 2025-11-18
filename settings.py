@@ -25,5 +25,7 @@ class Settings:
         self.metro_volume = 100
         self.vert_time_table = {}
 
+        self.slot_time_table = {}
+
 
 settings = Settings()

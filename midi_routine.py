@@ -41,7 +41,7 @@ def midi_init():
         return
 
     # Change DEVICE IN number if needed
-    device_id = 5
+    device_id = 3
     try:
         midi_in = pygame.midi.Input(device_id)
     except Exception as e:
@@ -57,7 +57,7 @@ def midi_init_out():
     global output
     try:
         # DEVICE OUT - Change if needed
-        output = pygame.midi.Output(4)
+        output = pygame.midi.Output(2)
     except Exception as e:
         logging.error(f"Failed to open MIDI output (id=4): {e}")
         output = None

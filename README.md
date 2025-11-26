@@ -1,6 +1,6 @@
 ![Pianoroll screenshot](pianoroll.png)
 
-('statistics' branch for developing saving and processings user's progress)
+(Note: 'statistics' branch for developing saving and processings user's progress. Logging is working, the next step is to clean up and document. Also refactoring is needed: several functions should be in classes in order to avoid using global variables.)
 
 # Hanon — MIDI-Based Finger Independence Trainer
 

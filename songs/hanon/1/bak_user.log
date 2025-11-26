@@ -1,0 +1,8 @@
+composer: Hanon
+min_duration: 16
+results:
+  40:
+    1: 0.01
+  50:
+    1: 0.74
+song: '1'

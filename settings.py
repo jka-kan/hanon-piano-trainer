@@ -6,6 +6,7 @@ class Settings:
         self.vert_line_color = "white"
 
         self.bpm = 60
+        self.hands = ""
 
         # How many vertical lines in every beat.
         # This means the intended duration of the played note.

@@ -27,12 +27,10 @@ from pianoroll import PianoRollSprite
 import pianoroll  # for first_round and barcontainer.init_bars()
 import midi_routine
 
-# from itertools import cycle
 from time import perf_counter
 import argparse
 
 hands = ""
-
 filename = ""
 
 # -------------------- Pygame Init --------------------
@@ -43,7 +41,6 @@ pygame.init()
 
 screen = pygame.display.set_mode((settings.width, settings.height))
 pygame.display.set_caption("Hanon")
-
 clock = pygame.time.Clock()
 
 grid_group = None
@@ -98,6 +95,7 @@ def init_app(first=False):
         grid.destroy()
     #    print(grid_group)
 
+    # Check: why does removing this double table init cause error?
     pianoroll.init_table()
 
     grid_group = pygame.sprite.Group()

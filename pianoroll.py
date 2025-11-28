@@ -1,11 +1,20 @@
 import pygame
-
+import logging
 from settings import settings
 import queue
 import copy
 from midi_routine import metro_queue
 from time import perf_counter
 from collections import deque
+
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    style="%",
+    datefmt="%Y-%m-%d %H:%M",
+    force=True,
+    level=logging.INFO,
+)
+
 
 to_transfer = {}
 first_round = True
@@ -41,40 +50,32 @@ class Slots:
         self.pointer += 1
 
     def make_slot(self, line_time):
-        # try:
-        #     if self.slots[self.pointer]:
-        #         pass
-        # except KeyError:
-        #     self.slots[self.pointer] = []
-        print("\nmake_slot")
         self.slots[line_time] = [self.pointer, {}]
-
-        print("Slots at make:", self.slots)
-        print("cur slot: ", self.pointer, "\n")
+        logging.debug(
+            "make_slot, self.slots: %s\n self.pointer: %s\n", self.slots, self.pointer
+        )
         self.pointer += 1
 
     def finish_slots(self):
-        # for line_time in self.slots:
-        #     self.slots_all[self.slots[line_time][0]] = self.slots[line_time][1]
-        #        self.slots_all = {}
-        print("finish_slots")
-        print("\n self.slots: ", self.slots, "\n")
+        logging.debug("finish_slots, self.slots: %s", self.slots)
 
         for line_time in self.slots:
-            print("line_time: ", line_time)
+            logging.debug("line_time: %s", line_time)
             try:
                 self.slots_all[self.slots[line_time][0]] = self.slots[line_time][1]
             except IndexError:
                 pass
 
-        # print("\n ALL Slots: ", self.slots_all, "\n")
-        # print("\n self.slots: ", self.slots, "\n")
+        logging.debug(
+            "at finish slots: self.slots_all: %s\nself.slots: %s",
+            self.slots_all,
+            self.slots,
+        )
 
     def add_note(self, pitch, line_time, accurate, to_next_grid):
 
         # Check if note waiting for going to next grid
         if to_next_grid:
-            #            print("\nwait to next received at add note: ", pitch, line_time)
             self.wait_to_next_grid.append((pitch, line_time, accurate))
             return
 
@@ -91,23 +92,16 @@ class Slots:
         except KeyError:
             raise
 
-    #        print("\nSLOTS: ", self.slots)
-
     def make_comp_slots(self, song):
         for hand in song:
             for slot, pitch in enumerate(song[hand]):
-
-                #                print("COMP: ", slot, pitch)
                 try:
                     self.computer_slots[slot].append(pitch[0] - 21)
                 except KeyError:
                     self.computer_slots[slot] = [pitch[0] - 21]
 
-    #        print("comp_slots", self.computer_slots)
-
     def check_slots(self):
         self.finish_slots()
-        #        print("COMP SLOTS: ", self.computer_slots)
 
         max_key_comp = max(self.computer_slots)
         max_key_user = max(self.slots_all)
@@ -122,48 +116,49 @@ class Slots:
             if self.slots_all[key]:
                 last_note_slot_user = key
                 break
-        print("Last key in user notes: ", last_note_slot_user)
+        logging.info("Last key in user notes: %s", last_note_slot_user)
 
         if last_note_slot_user < 0:
             return
-
-        # if len(self.slots_all) == len(self.computer_slots):
-        #     print("DIFFERENT LENGTH: ", len(self.slots_all), len(self.computer_slots))
-        #     return False
 
         for key in reversed(self.computer_slots.keys()):
             print(key, self.computer_slots[key])
             comp_notes = set(self.computer_slots[key])
 
             user_notes = self.slots_all[last_note_slot_user - counter]
-            # print(
-            #     "\n----\nUSER notes in slot: ",
-            #     user_notes,
-            #     "dict key:",
-            #     last_note_slot_user - counter,
-            #     "COMP notes in slot: ",
-            #     comp_notes,
-            # )
+
+            logging.info(
+                "\nUSER notes in slot: %s\ndict key: %s\nComp notes in slot: %s",
+                user_notes,
+                last_note_slot_user - counter,
+                comp_notes,
+            )
+
             for pitch in user_notes:
                 amount_notes += 1
                 if user_notes[pitch]:
                     amount_accurate += 1
-                    # print(
-                    #     "SINGLE NOTE IN SLOT IS ACCURATE, amount accurate: ",
-                    #     amount_accurate,
-                    # )
+                    logging.info(
+                        "SINGLE NOTE IN SLOT IS ACCURATE, amount accurates: %s",
+                        amount_accurate,
+                    )
             counter += 1
 
             user_notes = set(user_notes)
 
             if user_notes and comp_notes == user_notes:
-                # print(
-                #     "ALL NOTES IN SLOT MATCH: ", comp_notes, user_notes, amount_accurate
-                # )
-                pass
+                logging.info(
+                    "ALL NOTES IN SLOT MATCH. comp_notes: %s\nuser_notes: %s\namount_accurate: %s",
+                    comp_notes,
+                    user_notes,
+                    amount_accurate,
+                )
             else:
-                print(
-                    "DIDN'T MATCH IN SLOT: ", comp_notes, user_notes, "comp key:", key
+                logging.info(
+                    "Wrong notes played. Didn't match in slot. comp_notes %s\nuser_notes: %s\ncomp key: %s ",
+                    comp_notes,
+                    user_notes,
+                    key,
                 )
                 #                self.slots = {}
                 self.slots_all = {}
@@ -171,9 +166,10 @@ class Slots:
                 return False
             notes_checked += 1
 
-        #            print("notes checked: ", notes_checked)
+        logging.info("notes checked: %s", notes_checked)
+
         accuracy_rate = round(amount_accurate / amount_notes, 2)
-        print("\nALL MATCHED!! ACCURACY RATE: ", accuracy_rate, "\n")
+        logging.info("\nALL MATCHED!! ACCURACY RATE: %s", accuracy_rate)
 
         for key in self.slots:
             self.slots[key] = []
@@ -227,7 +223,7 @@ class Table:
         """
         [ [pixel nr, time, metro True/False, line_time] ]
         """
-        print("make_grid at Table")
+        logging.debug("make_grid at Table")
 
         global slots
 
@@ -242,21 +238,19 @@ class Table:
 
         metro_pixel_interval = round((pixels_per_beat) / settings.beat_division)
 
-        # print(
-        #     "\nbeat time: ",
-        #     beat_time,
-        #     "pixels_per_beat: ",
-        #     pixels_per_beat,
-        #     "self.time_per_screen: ",
-        #     self.time_per_screen,
-        #     "pixel_time: ",
-        #     pixel_time,
-        #     "self.amount_vert_lines: ",
-        #     self.amount_vert_lines,
-        #     "metro_pixel_interval: ",
-        #     metro_pixel_interval,
-        #     "\n",
-        # )
+        logging.debug(
+            (
+                "\nbeat time: %s pixels_per_beat: %s self.time_per_screen: %s"
+                "pixel_time: %s self.amount_vert_lines: %s metro_pixel_interval: %s"
+            ),
+            beat_time,
+            pixels_per_beat,
+            self.time_per_screen,
+            pixel_time,
+            self.amount_vert_lines,
+            metro_pixel_interval,
+        )
+
         first_metro = True
         vert_line = False
         # Metronome intervals is a number of pixels between every tick
@@ -277,7 +271,7 @@ class Table:
                 # slots.inc_pointer += 1
                 #                if not self.one_grid_made:
                 slots.make_slot(round(total_time, 4))
-            #                    print("total_time", total_time)
+                # logging.debug("total_time: %s", total_time)
 
             else:
                 vert_line = False
@@ -294,13 +288,15 @@ class Table:
             total_time += pixel_time
 
             # slots.finish_slots()
-        print("total_time: ", total_time)
-        print("slot_time_table: ", settings.slot_time_table)
-        print("length vert", len(self.vert_time_table))
-        print("\nvert_time_table: ", self.vert_time_table)
-        print("\nall_vert_times at make grid: ", self.all_vert_times)
-        print("\ngrid_table: ", self.grid_table)
-        print("\nslots: ", slots.slots)
+
+        logging.debug("total_time: %s", total_time)
+        logging.debug("slot_time_table: %s", settings.slot_time_table)
+        logging.debug("length vert %s", len(self.vert_time_table))
+        logging.debug("\nvert_time_table: %s", self.vert_time_table)
+        logging.debug("\nall_vert_times at make grid: %s", self.all_vert_times)
+        logging.debug("\ngrid_table: %s", self.grid_table)
+        logging.debug("\nslots: %s", slots.slots)
+
         # For the last comparison of accuracy
         self.all_vert_times.append(round(total_time, 4))
 
@@ -425,31 +421,27 @@ class PianoRollSprite(pygame.sprite.Sprite):
         pixels_per_beat = settings.width / self.beats_per_screen
         self.time_per_screen = beat_time * self.beats_per_screen
 
-        # pixel_time = float(beat_time / pixels_per_beat)
-        # total_time = float(0.0)
-        # metro_pixel_interval = round((pixels_per_beat) / self.beat_division)
+        pixel_time = float(beat_time / pixels_per_beat)
+        total_time = float(0.0)
+        metro_pixel_interval = round((pixels_per_beat) / self.beat_division)
 
         self.vert_time_table = copy.deepcopy(table.vert_time_table)
         self.all_vert_times = copy.deepcopy(table.all_vert_times)
         self.grid_table = copy.deepcopy(table.grid_table)
 
-    #     print("\nORIGINAL:")
-    #
-    #     print(
-    #         "\nbeat time: ",
-    #         beat_time,
-    #         "pixels_per_beat: ",
-    #         pixels_per_beat,
-    #         "self.time_per_screen: ",
-    #         self.time_per_screen,
-    #         "pixel_time: ",
-    #         pixel_time,
-    #         "self.amount_vert_lines: ",
-    #         self.amount_vert_lines,
-    #         "metro_pixel_interval: ",
-    #         metro_pixel_interval,
-    #         "\n",
-    #     )
+        logging.debug(
+            (
+                "\nmetro_pixel_interval %s beat time: %s pixels_per_beat: %s"
+                "self.time_per_screen: %s pixel_time: %s"
+                "self.amount_vert_lines: %s",
+                metro_pixel_interval,
+                beat_time,
+                pixels_per_beat,
+                self.time_per_screen,
+                pixel_time,
+                self.amount_vert_lines,
+            )
+        )
 
     def check_grid_table(self, clock):
         """
@@ -475,8 +467,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
                 #     metro_queue.put(True)
 
                 if self.grid_table.pop(0)[4]:
-                    pass
-                    # print("clock: ", clock)
+                    logging.debug("clock: %s", clock)
 
                 for elem in self.grid_table:
                     if elem[3] >= 0:
@@ -489,14 +480,13 @@ class PianoRollSprite(pygame.sprite.Sprite):
         #                break
         except IndexError:
             grid_finished = True
-            # break
 
         if self.grid_table:
             cur_time = self.grid_table[0][1]
             # line_time = self.grid_table[0][3]
         else:
             cur_time = -1
-        #        print("remove", pixels_removed)
+            logging.debug("remove %s", pixels_removed)
         return (pixels_removed, metro, grid_finished, cur_time)  # , line_time)
 
     def _draw_horiz_lines(self, surf):
@@ -519,7 +509,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
                 else "gray38"
             )
             self.vert_lines.append(x + settings.width)
-            #    print("vert", x + settings.width)
             pygame.draw.line(surf, color, (x, 0), (x, settings.height))
             x += self.vert_line_distance
 
@@ -713,16 +702,16 @@ class PianoRollSprite(pygame.sprite.Sprite):
         for item in data_list:
             differences.append((abs(item - target_value), item))
 
-        # print("\ndifferences: ", differences)
+        logging.debug("\ndifferences: %s", differences)
         # Sort by the absolute difference
         differences.sort()
 
-        #        print("\ndifferences sort: ", differences)
+        logging.debug("\ndifferences sort: %s ", differences)
         # Extract the two nearest values
         nearest_values = [differences[0][1], differences[1][1]]
 
-        #        print("\nnearest values: ", nearest_values)
-        #        print("\nresult: ", sorted([nearest_values[0], nearest_values[1]]))
+        logging.debug("\nnearest values: %s", nearest_values)
+        logging.debug("\nresult: %s", sorted([nearest_values[0], nearest_values[1]]))
 
         if max(nearest_values) == max(data_list):
             move_to_next = True
@@ -756,13 +745,11 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
         # Was [0:41]
 
-        print("all vert times", self.all_vert_times)
-        print(
-            "prev line time: ",
+        logging.debug("all vert times %s ", self.all_vert_times)
+        logging.debug(
+            "prev line time: %s next line time: %s note time: %s",
             prev_line_time,
-            " next line time: ",
             next_line_time,
-            " note time: ",
             note_time,
         )
         first_distance = round(note_time - prev_line_time, 4)

@@ -34,13 +34,22 @@ At first, hitting that precision feels almost impossible. But as you improve, yo
 1. **Connect your digital piano or MIDI keyboard.**
 2. **Create a virtual environment for Python**
 3. **Adjust MIDI input and output ports in midi_routine.py**
-4. **Run Hanon.**
-   ```bash
-   python3 main.py 40
-   ```
+4. **Install dependencies:**
 
-The first argument is tempo in BPM.
+```bash
+pip install pygame
+```
 
+5. **Run Hanon**
+```bash
+python3 main.py 40 R 1
+```
+
+The arguments: tempo in BPM, hands R/L/B(oth), exercise number
+
+The exercise number is optional.
+The program has a few pre-programmed Hanon exercises at songs/hanon directory. When you have played the whole exercise, after 1 s pause the computer will check if all notes were played correctly. If this check is passed it will calculate the average accuracy and log it in the 'user.log' file at the song directory so that you can track your progress.
+If no exercise number is given you can play freely whatever you like, for example phrases from a composition you are practising.
 
 # Technical Principles
 ## Single Master Clock
@@ -57,7 +66,6 @@ This guarantees perfect phase-lock between what you see and what you hear, no dr
 Two scrolling grids (A and B) alternate seamlessly:
 
 When one grid scrolls off-screen, the next one takes over and a new grid instance is created outside of the right border of the screen.
-
 Notes that extend past the boundary continue smoothly to the next grid. This done by splitting a note in two.
 
 This double-buffered structure ensures uninterrupted scrolling and consistent timing.
@@ -68,14 +76,14 @@ Variables:
 
 self.bpm -> Tempo
 
-self.line_division -> How many vertical lines a beat is divided into. This means the intended duration of the note. If you are going to play 16th notes, the beat must be divided in 4. Because the program compares accuracy to the nearest vertical line, you won't get correct results if intended note duration doesn't match with the line division
+self.line_division -> How many vertical lines a beat is divided into. This means the intended duration of the note. If you are going to play 16th notes, the beat must be divided in 4. Because the program compares accuracy to the nearest vertical line, you won't get correct results if the intended note duration doesn't match with the line division
 
 self.beat_division -> How many metronome ticks is played in each beat. On slower tempos this should match with the line division so that you hear a metronome tick at every note and can adjust the timing of each finger movement.
 
 ## MIDI Metronome
 
 Instead of audio playback, the app sends MIDI note 42 on channel 9 (hi-hat sound in General MIDI).
-Your piano plays its own metronome tightly synced with the graphics.
+Your piano plays its own 'fake metronome' tightly synced with the graphics.
 
 ## Real-Time MIDI Listening
 
@@ -108,10 +116,6 @@ Python 3.10 +
 pygame
 
 
-Install dependencies:
-
-pip install pygame
-
 
 Connect your MIDI keyboard via USB before launching. 
 
@@ -125,19 +129,16 @@ settings.py       → configurable parameters (BPM, divisions, accuracy)
 ## Experimental Notes
 
 The system assumes your MIDI device sends Note On and Note Off messages accurately.
-
 For best results, disable any local keyboard latency settings.
 
 The visual feedback loop works best with Hanon exercises, because the repetitive structure allows you to isolate and adjust individual finger timing.
-
 Still, you can play anything you like.
 
 ## Future Directions
 
-* Cleaning up and refactoring the code.
+* Cleaning up and refactoring the code. Put functions in classes in order to avoid using globals.
 * Changing tempo, accuracy margin, beat and line division in real time. This requires resetting all objects which is difficult because the pygame.midi.time() runs continously. It can't be reset. Suggestions are welcome.
 
-* Per-finger accuracy statistics. Log timing data for long-term progress tracking
 
 Have fun practising!
 

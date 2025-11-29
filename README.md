@@ -1,7 +1,5 @@
 ![Pianoroll screenshot](pianoroll.png)
 
-(Note: 'statistics' branch for developing saving and processings user's progress. Logging is working, the next step is to clean up and document. Also refactoring is needed: several functions should be in classes in order to avoid using global variables.)
-
 # Hanon — MIDI-Based Finger Independence Trainer
 
 **Hanon** is an experimental tool designed to develop *finger independence and rhythmic precision* in piano technique especially suited for Hanon exercises and other repetitive technical patterns.

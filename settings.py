@@ -5,7 +5,7 @@ class Settings:
         self.height = 1000
         self.vert_line_color = "white"
 
-        self.bpm = 60
+        self.bpm = 0
         self.hands = ""
 
         # How many vertical lines in every beat.
@@ -17,6 +17,9 @@ class Settings:
 
         # How many metronome ticks are played in every beat.
         self.beat_division = 4
+
+        # Only working: 5, 6, 9, 10
+        self.beats_per_screen = 10
         self.wallclock = None
         self.perm_clock = None
 

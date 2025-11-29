@@ -205,7 +205,7 @@ class Table:
     """
 
     def __init__(self) -> None:
-        self.beats_per_screen = 10
+        self.beats_per_screen = settings.beats_per_screen
         self.grid_table = []
         self.time_per_screen = 0.0
         self.one_grid_made = False
@@ -236,12 +236,13 @@ class Table:
         pixel_time = float(beat_time / pixels_per_beat)
         total_time = float(0.0)
 
-        metro_pixel_interval = round((pixels_per_beat) / settings.beat_division)
+        #        metro_pixel_interval = round((pixels_per_beat) / settings.beat_division)
+        metro_pixel_interval = pixels_per_beat / settings.beat_division
 
         logging.debug(
             (
                 "\nbeat time: %s pixels_per_beat: %s self.time_per_screen: %s"
-                "pixel_time: %s self.amount_vert_lines: %s metro_pixel_interval: %s"
+                " pixel_time: %s self.amount_vert_lines: %s metro_pixel_interval: %s"
             ),
             beat_time,
             pixels_per_beat,
@@ -294,7 +295,7 @@ class Table:
         logging.debug("length vert %s", len(self.vert_time_table))
         logging.debug("\nvert_time_table: %s", self.vert_time_table)
         logging.debug("\nall_vert_times at make grid: %s", self.all_vert_times)
-        logging.debug("\ngrid_table: %s", self.grid_table)
+        #        logging.debug("\ngrid_table: %s", self.grid_table)
         logging.debug("\nslots: %s", slots.slots)
 
         # For the last comparison of accuracy
@@ -366,7 +367,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
         self.speed = 1
         self.line_division = settings.line_division  # 4
-        self.beats_per_screen = 10
+        self.beats_per_screen = settings.beats_per_screen
         self.beat_division = settings.beat_division  # 2
 
         self.amount_vert_lines = self.line_division * self.beats_per_screen
@@ -432,15 +433,15 @@ class PianoRollSprite(pygame.sprite.Sprite):
         logging.debug(
             (
                 "\nmetro_pixel_interval %s beat time: %s pixels_per_beat: %s"
-                "self.time_per_screen: %s pixel_time: %s"
-                "self.amount_vert_lines: %s",
-                metro_pixel_interval,
-                beat_time,
-                pixels_per_beat,
-                self.time_per_screen,
-                pixel_time,
-                self.amount_vert_lines,
-            )
+                " self.time_per_screen: %s pixel_time: %s"
+                " self.amount_vert_lines: %s"
+            ),
+            metro_pixel_interval,
+            beat_time,
+            pixels_per_beat,
+            self.time_per_screen,
+            pixel_time,
+            self.amount_vert_lines,
         )
 
     def check_grid_table(self, clock):

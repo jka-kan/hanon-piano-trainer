@@ -1,0 +1,9 @@
+composer: ''
+min_duration: 16
+results:
+  B: {}
+  L: {}
+  R:
+    40:
+      1: 0.46
+song: ''

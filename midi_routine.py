@@ -41,7 +41,7 @@ def midi_init():
         return
 
     # Change DEVICE IN number if needed
-    device_id = 3
+    device_id = 5
     try:
         midi_in = pygame.midi.Input(device_id)
     except Exception as e:
@@ -57,7 +57,7 @@ def midi_init_out():
     global output
     try:
         # DEVICE OUT - Change if needed
-        output = pygame.midi.Output(2)
+        output = pygame.midi.Output(4)
     except Exception as e:
         logging.error(f"Failed to open MIDI output (id=4): {e}")
         output = None
@@ -81,7 +81,7 @@ def midi_tick(
     For example the highest note in the piano.
     Metronome sound is played when midi time matches with pixels in the time table.
     The midi clock can't be reset, it runs continously. Thats why the time table
-    must be corrected with elapsed time when new grid start.
+    must be corrected with elapsed time when new grid starts.
     """
 
     # Send a short MIDI click (Note On + small gate + Note Off).
@@ -106,45 +106,39 @@ def midi_tick(
     change_time = 0
     rounds = 0
 
-    while metro_running.is_set():  # True:
-        # print("midi time at midi tick: ", pygame.midi.time())
-
-        # try:
-        #     a = metro_running.get_nowait()
-        #     print(a)
-        #
-        #     if a == "stop":
-        #         break
-        # except queue.Empty:
-        #     pass
-        #
-        #        print("FIRST status: ", first_round)
+    while metro_running.is_set():
         if not time_table:
+            # Make time table for metronome ticks.
+            # To continue from a grid to another start with the last tick of the
+            # previous grid (=adjustement).
+            # First tick of the next grid is one step + adjustement
+            # print("vert_time_table: ", settings.vert_time_table)
 
-            if first_round:
-                first_round = False
-                midi_zero = 0  # pygame.midi.time()
-                # adjusted = midi_time_adjusted(midi_zero)
-            else:
-                midi_zero = pygame.midi.time()
-
-                # adjusted = midi_time_adjusted(midi_zero) + midi_zero
-
-                adjusted += (60 / settings.bpm) * 10000
-
-            # for key in settings.vert_time_table:
-            #     time_table.append(round(key * 1000) + midi_zero - midi_start_time)
-            #     rounds += 1
-            #     # first_round = True
+            a = list(settings.vert_time_table.keys())[0]
+            b = list(settings.vert_time_table.keys())[1]
+            #            print("a: ", a, "b: ", b)
+            step = (b - a) * 1000
+            #            print("step", step)
+            #            print("adjusted: ", adjusted)
 
             for key in settings.vert_time_table:
                 time_table.append(round(key * 1000) + adjusted)
+            #            print("new time table: ", time_table)
             rounds += 1
+            adjusted = time_table[-1] + step
 
-            #            time_table.pop(0)
-            print("Length: ", len(time_table))
-            print("time: ", pygame.midi.time())
-            print("\ntime table: ", time_table)
+        #            print("time_table 0: ", time_table[0], "time_table 1: ", time_table[1])
+        #            print("new adjusted: ", adjusted)
+        # print(
+        #     "\ntime table: ",
+        #     time_table,
+        #     " length: ",
+        #     len(time_table),
+        #     "midi time: ",
+        #     pygame.midi.time(),
+        #     "\n",
+        # )
+        #
 
         if pygame.midi.time() >= time_table[0]:
             try:
@@ -165,6 +159,10 @@ def midi_tick(
             except Exception as e:
                 logging.error(f"MIDI tick failed: {e}")
             time_table.pop(0)
+
+
+#            print("time: ", pygame.midi.time())
+#            print("\ntime table: ", time_table, " length: ", len(time_table), "\n")
 
 
 # This was test for receiving metronome signals from elsewhere.

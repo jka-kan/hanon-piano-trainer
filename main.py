@@ -5,6 +5,8 @@ import queue
 import threading
 import pygame
 from settings import settings
+import note_api
+import filemanager
 
 # from pygame.mixer_music import play  # ← audio disabled
 import pygame.midi
@@ -25,10 +27,11 @@ from pianoroll import PianoRollSprite
 import pianoroll  # for first_round and barcontainer.init_bars()
 import midi_routine
 
-# from itertools import cycle
 from time import perf_counter
 import argparse
 
+hands = ""
+filename = ""
 
 # -------------------- Pygame Init --------------------
 # pygame.mixer.pre_init(frequency=8000, size=-16, channels=1, buffer=128)  # ← audio disabled
@@ -38,7 +41,6 @@ pygame.init()
 
 screen = pygame.display.set_mode((settings.width, settings.height))
 pygame.display.set_caption("Hanon")
-
 clock = pygame.time.Clock()
 
 grid_group = None
@@ -50,6 +52,13 @@ my_font = pygame.font.SysFont("Arial", 30)
 
 midi_listen_thread = None
 metronome_thread = None
+song = None
+
+
+def load_song():
+    global song
+    global hands
+    song = note_api.process_song(filemanager.load_song(filename), hands)
 
 
 def init_midi():
@@ -84,8 +93,9 @@ def init_app(first=False):
 
     for grid in grid_order:
         grid.destroy()
-    print(grid_group)
+    #    print(grid_group)
 
+    # Check: why does removing this double table init cause error?
     pianoroll.init_table()
 
     grid_group = pygame.sprite.Group()
@@ -96,6 +106,7 @@ def init_app(first=False):
     #    grid_a.precise_x = float(grid_a.rect.left)  # This can be used later to create smoother scroll
 
     # Second grid just off-screen to the right
+
     grid_b = PianoRollSprite(settings.height, settings.width, "B", 2)
     grid_b.rect.topleft = (settings.width, 0)  # +1
     #    grid_b.precise_x = float(grid_b.rect.left)
@@ -152,7 +163,7 @@ def wrap_and_reseed_if_needed():
 
     global grid_a, grid_b, grid_order, grid_group
 
-    grid_order[1].reset_grid()
+    #     grid_order[1].reset_grid()
 
     new_grid = PianoRollSprite(settings.height, settings.width, "A", 2)
     new_grid.rect.x = settings.width
@@ -170,27 +181,34 @@ def wrap_and_reseed_if_needed():
     grid_order.append(new_grid)
     grid_group.add(new_grid)
 
+    print("Grid changed!")
+
 
 # -------------------- Main ---------------------------
 def main():
     print("Starting MIDI listener.")
     print("Entering main loop.")
-
+    global song
     running = True
 
     rounds = 0
     pixels_removed = 0
 
     # To be used later: adjust time gaps when starting new grid
-    midi_zero = pygame.midi.time()
+    #    midi_zero = pygame.midi.time()
+
+    # Measure pauses in playing. After a pause check whether played notes match with song notes.
+    pause_start = None
+    global hands
+
+    if song:
+        pianoroll.slots.make_comp_slots(song)
 
     while running:
         # Keep original timing relation for the grid logic
         # New pianoroll grid gets always the same time codes as previous ones
         # Time has to be adjusted to the midi time which is linear
         time_diff = pygame.midi.time() / 1000 - rounds
-
-        #        print("time: ", time_diff)
 
         # Time is compared to the grid time codes
         # Until the current midi time is found in the grid vertical points of the grid, pixels are removed
@@ -211,7 +229,7 @@ def main():
         #     cur_time,
         # )
 
-        # Test: controlling of metronome ticks from main routine
+        # Test: controlling metronome ticks from main routine
         # This resulted uneven ticks
 
         # if metro:
@@ -225,9 +243,26 @@ def main():
         while not midi_queue.empty():
             message = midi_queue.get()
             channel = message[0][0]
-            pitch = message[0][1] - 17
+            pitch = (
+                message[0][1] - 21
+            )  # Adjust pitch because 0 isn't the lowest key in piano
             note_time = message[1] / 1000 - rounds
             grid_order[1].make_bar(channel, pitch, note_time)  # , line_time)
+            pause_start = time.perf_counter()
+
+        try:
+            pause_time = time.perf_counter() - pause_start
+            #            print("pause time", pause_time)
+            if pause_time >= 1 and song:
+                result = pianoroll.slots.check_slots()
+                if result:
+                    filemanager.log_result(filename, result, settings.bpm, hands)
+
+                pause_start = None
+        #               print("pause_start", pause_start)
+
+        except TypeError:
+            pass
 
         # Wrap if the grid is finished (out of the screen)
         if grid_finished:
@@ -304,7 +339,7 @@ def main():
         pygame.display.flip()
 
         # --- Time step ---
-        clock.tick(60)
+        clock.tick(120)
 
     print("Exiting…")
     midi_stop()
@@ -315,12 +350,18 @@ def main():
 
 # Read variable arguments and start main routine
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("bpm", type=int, help="BPM", default=40)
+    parser.add_argument("bpm", type=int, help="BPM")
+    parser.add_argument("hands", type=str, help="Hands")
+    parser.add_argument("song", type=str, nargs="?", help="Song name")
+
     args = parser.parse_args()
-    print(args.bpm)
     settings.bpm = args.bpm
+    hands = args.hands
+
+    if args.song:
+        filename = args.song
+        load_song()
 
     init_midi()
     init_app(first=True)

@@ -197,11 +197,21 @@ def midi_tick(
 #         logging.error(f"MIDI tick failed: {e}")
 
 
-def midi_send(test):
+def midi_send(message):
     """
     Kept for reference. No longer used for metronome tick.
     Previously tried to read pygame events from a thread, which is unsafe.
     """
+    global output
+    channel = message[0][0]
+    pitch = message[0][1]
+    velocity = 50
+
+    if channel >= 144:
+        output.note_on(64, velocity)
+    else:
+        output.note_off(64, velocity)
+
     # for event in pygame.event.get(eventtype=METRO_EVENT):
     #     output.note_on(81 + 27, 30, 0)
     #     output.note_off(81 + 27, 30, 0)

@@ -20,6 +20,7 @@ from midi_routine import (
     midi_init_out,
     midi_tick,
     midi_init,
+    midi_send,
     rounds,
     metro_running,
 )
@@ -201,6 +202,8 @@ def main():
     pause_start = None
     global hands
 
+    zero_time = 0
+
     if song:
         pianoroll.slots.make_comp_slots(song)
 
@@ -239,14 +242,26 @@ def main():
         # Update sprites (they should move using precise_x internally)
         grid_group.update(pixels_removed)
 
+        # new_time = pygame.midi.time()
+        # if new_time % 1000 == 0:
+        #     msg = [[144, 31, 44, 0], new_time + 50]
+        #     midi_queue.put(msg)
+        #
+        #     msg = [[128, 31, 44, 0], new_time + 200]
+        #     midi_queue.put(msg)
+
         # Read incoming midi notes and draw bars on the grid
         while not midi_queue.empty():
+
             message = midi_queue.get()
+            print(message)
+            midi_send(message)
             channel = message[0][0]
             pitch = (
                 message[0][1] - 21
             )  # Adjust pitch because 0 isn't the lowest key in piano
             note_time = message[1] / 1000 - rounds
+
             grid_order[1].make_bar(channel, pitch, note_time)  # , line_time)
             pause_start = time.perf_counter()
 

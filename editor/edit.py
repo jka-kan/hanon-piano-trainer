@@ -76,14 +76,24 @@ import yaml
 # finger_down_L = [1, 3, 5, 4, 3, 4, 3, 2]
 
 # 3
-pattern_up = ["C2", "E2", "A2", "G2", "F2", "E2", "F2", "G2"]
-pattern_down = ["G4", "D4", "B3", "C4", "D4", "E4", "D4", "C4"]
+# pattern_up = ["C2", "E2", "A2", "G2", "F2", "E2", "F2", "G2"]
+# pattern_down = ["G4", "D4", "B3", "C4", "D4", "E4", "D4", "C4"]
+#
+# finger_up_R = [1, 2, 5, 4, 3, 2, 3, 4]
+# finger_down_R = [5, 2, 1, 2, 3, 4, 3, 2]
+#
+# finger_up_L = [5, 3, 1, 2, 3, 4, 3, 2]
+# finger_down_L = [1, 3, 5, 4, 3, 2, 3, 4]
 
-finger_up_R = [1, 2, 5, 4, 3, 2, 3, 4]
-finger_down_R = [5, 2, 1, 2, 3, 4, 3, 2]
+# 4
+pattern_up = ["C2", "D2", "C2", "E2", "A2", "G2", "F2", "E2"]
+pattern_down = ["G4", "F4", "G4", "D4", "B3", "C4", "D4", "E4"]
 
-finger_up_L = [5, 3, 1, 2, 3, 4, 3, 2]
-finger_down_L = [1, 3, 5, 4, 3, 2, 3, 4]
+finger_up_R = [1, 2, 1, 2, 5, 4, 3, 2]
+finger_down_R = [5, 4, 5, 2, 1, 2, 3, 4]
+
+finger_up_L = [5, 4, 5, 3, 1, 2, 3, 4]
+finger_down_L = [1, 2, 1, 3, 5, 4, 3, 2]
 
 
 def make_sequence(pattern, hand, cycles, finger_pattern, direction):

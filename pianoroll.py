@@ -3,7 +3,8 @@ import logging
 from settings import settings
 import queue
 import copy
-from midi_routine import metro_queue
+
+# from midi_routine import metro_queue
 from time import perf_counter
 from collections import deque
 
@@ -465,7 +466,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
             while self.grid_table[0][1] <= clock:  # Was if
                 if self.grid_table[0][2]:
                     metro = True
-                    metro_queue.put(True)
+                    # metro_queue.put(True)
 
                 if self.grid_table.pop(0)[4]:
                     logging.debug("clock: %s", clock)

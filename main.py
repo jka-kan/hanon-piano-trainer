@@ -1,7 +1,6 @@
 # from pydoc import cli
 import sys
 import time
-import queue
 import threading
 import pygame
 from settings import settings
@@ -10,29 +9,17 @@ import filemanager
 
 # from pygame.mixer_music import play  # ← audio disabled
 import pygame.midi
-from midi_routine import midi_queue
-
 
 from settings import settings
-from midi_routine import (
-    METRO_EVENT,  # kept for compatibility, not used
-    midi_listen,
-    midi_init_out,
-    midi_tick,
-    midi_init,
-    midi_send,
-    rounds,
-    metro_running,
-)
+from midi_routine import MidiRoutine
+
 from pianoroll import PianoRollSprite
 import pianoroll  # for first_round and barcontainer.init_bars()
-import midi_routine
-
-from time import perf_counter
 import argparse
 
 
 # -------------------- Pygame Init --------------------
+# Testing computer audio metronome.
 # pygame.mixer.pre_init(frequency=8000, size=-16, channels=1, buffer=128)  # ← audio disabled
 # pygame.mixer.init()  # ← audio disabled
 
@@ -51,6 +38,7 @@ class App:
         self.midi_listen_thread = None
         self.metronome_thread = None
         self.song = None
+        self.midi_routine = MidiRoutine()
 
     def init_pygame(self):
         pygame.init()
@@ -66,13 +54,13 @@ class App:
 
     def init_midi(self):
         pygame.midi.init()
-        midi_init()
-        midi_init_out()
+        self.midi_routine.midi_init()
+        self.midi_routine.midi_init_out()
 
     def midi_stop(self):
-        if metro_running.is_set():
+        if self.midi_routine.metro_running.is_set():
             try:
-                metro_running.clear()
+                self.midi_routine.metro_running.clear()
                 self.midi_listen_thread.join()
                 self.metronome_thread.join()
                 print(pygame.midi.get_init())
@@ -103,16 +91,20 @@ class App:
         self.grid_order = [self.grid_a, self.grid_b]
         self.grid_group.add(self.grid_a, self.grid_b)
 
-        midi_routine.time_table = []
+        self.midi_routine.time_table = []
 
-        metro_running.set()
+        self.midi_routine.metro_running.set()
 
         # Start MIDI input listener and metronome
 
-        self.midi_listen_thread = threading.Thread(target=midi_listen)  # , daemon=True)
+        self.midi_listen_thread = threading.Thread(
+            target=self.midi_routine.midi_listen
+        )  # , daemon=True)
         self.midi_listen_thread.start()
 
-        self.metronome_thread = threading.Thread(target=midi_tick)  # , daemon=True)
+        self.metronome_thread = threading.Thread(
+            target=self.midi_routine.midi_tick
+        )  # , daemon=True)
         self.metronome_thread.start()
 
     # -------------------- AUDIO CLICK REMOVED --------------------
@@ -125,7 +117,7 @@ class App:
 
         while True:
             try:
-                status, pitch, velocity = midi_queue.get_nowait()
+                status, pitch, velocity = self.midi_routine.midi_queue.get_nowait()
             except queue.Empty:
                 break
 
@@ -219,9 +211,9 @@ class App:
             self.grid_group.update(pixels_removed)
 
             # Read incoming midi notes and draw bars on the grid
-            while not midi_queue.empty():
+            while not self.midi_routine.midi_queue.empty():
 
-                message = midi_queue.get()
+                message = self.midi_routine.midi_queue.get()
                 channel = message[0][0]
                 pitch = (
                     message[0][1] - 21

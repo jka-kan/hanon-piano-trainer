@@ -139,8 +139,8 @@ def midi_tick(
         #     "\n",
         # )
         #
-
-        if pygame.midi.time() >= time_table[0]:
+        midi_now = pygame.midi.time()
+        if midi_now >= time_table[0]:
             try:
                 diff = round(received_time - prev_time, 4)
                 prev_time = received_time

@@ -463,9 +463,9 @@ class PianoRollSprite(pygame.sprite.Sprite):
         # while True:
         try:
             while self.grid_table[0][1] <= clock:  # Was if
-                # if self.grid_table[0][2]:
-                #     metro = True
-                #     metro_queue.put(True)
+                if self.grid_table[0][2]:
+                    metro = True
+                    metro_queue.put(True)
 
                 if self.grid_table.pop(0)[4]:
                     logging.debug("clock: %s", clock)

@@ -25,8 +25,8 @@ import argparse
 
 
 class App:
-    def __init__(self) -> None:
-        self.hands = ""
+    def __init__(self, hands) -> None:
+        self.hands = hands
         self.filename = ""
         self.screen = None
         self.clock = None
@@ -39,6 +39,7 @@ class App:
         self.metronome_thread = None
         self.song = None
         self.midi_routine = MidiRoutine()
+        self.table = None  # pianoroll.Table()
 
     def init_pygame(self):
         pygame.init()
@@ -74,18 +75,22 @@ class App:
             grid.destroy()
 
         # Check: why does removing this double table init cause error?
-        pianoroll.init_table()
+        self.table = pianoroll.Table()  # .init_table()
 
         self.grid_group = pygame.sprite.Group()
 
         # First grid on-screen
-        self.grid_a = PianoRollSprite(settings.height, settings.width, "A", 1)
+        self.grid_a = PianoRollSprite(
+            settings.height, settings.width, "A", 1, self.table
+        )
         self.grid_a.rect.topleft = (0, 0)
         #    grid_a.precise_x = float(grid_a.rect.left)  # This can be used later to create smoother scroll
 
         # Second grid just off-screen to the right
 
-        self.grid_b = PianoRollSprite(settings.height, settings.width, "B", 2)
+        self.grid_b = PianoRollSprite(
+            settings.height, settings.width, "B", 2, self.table
+        )
         self.grid_b.rect.topleft = (settings.width, 0)  # +1
         #    grid_b.precise_x = float(grid_b.rect.left)
 
@@ -138,9 +143,9 @@ class App:
         - Reset the right grid and replace the left grid with a fresh one on the right.
         """
 
-        #     grid_order[1].reset_grid()
+        #         self.grid_order[1].reset_grid()
 
-        new_grid = PianoRollSprite(settings.height, settings.width, "A", 2)
+        new_grid = PianoRollSprite(settings.height, settings.width, "A", 2, self.table)
         new_grid.rect.x = settings.width
 
         # Copy notes that overlap to the next grid
@@ -156,7 +161,7 @@ class App:
         self.grid_order.append(new_grid)
         self.grid_group.add(new_grid)
 
-        print("Grid changed!")
+        print("\n\nGrid changed!\n\n")
 
     # -------------------- Main ---------------------------
     def main(self):
@@ -239,7 +244,9 @@ class App:
 
             # Wrap if the grid is finished (out of the screen)
             if grid_finished:
-                rounds += self.grid_order[0].time_per_screen
+                rounds += (
+                    self.table.time_per_screen
+                )  # self.grid_order[0].time_per_screen
                 self.wrap_and_reseed_if_needed()
 
             # --- Keyboard shortcuts ---
@@ -319,18 +326,19 @@ class App:
 
 # Read variable arguments and start main routine
 if __name__ == "__main__":
-    app = App()
-    app.init_pygame()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("bpm", type=int, help="BPM")
     parser.add_argument("hands", type=str, help="Hands")
     parser.add_argument("song", type=str, nargs="?", help="Song name")
-
     args = parser.parse_args()
     settings.bpm = args.bpm
-    app.hands = args.hands
-    app.init_midi()
 
+    app = App(args.hands)
+    app.init_pygame()
+    #    app.hands = args.hands
+
+    app.init_midi()
     app.init_app(first=True)
 
     if args.song:

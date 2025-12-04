@@ -6,6 +6,8 @@ import copy
 
 # from midi_routine import metro_queue
 from time import perf_counter
+
+# TODO: change queue to deque
 from collections import deque
 
 logging.basicConfig(
@@ -13,19 +15,20 @@ logging.basicConfig(
     style="%",
     datefmt="%Y-%m-%d %H:%M",
     force=True,
-    level=logging.INFO,
+    level=logging.DEBUG,
+    # level=logging.INFO,
 )
 
 
-to_transfer = {}
-first_round = True
+# to_transfer = {}
+# first_round = True
 
-bars_continuing = queue.Queue()
-
-
-def clear_continuing():
-    global bars_continuing
-    bars_continuing = queue.Queue()
+# bars_continuing = queue.Queue()
+#
+#
+# def clear_continuing():
+#     global bars_continuing
+#     bars_continuing = queue.Queue()
 
 
 class Slots:
@@ -103,17 +106,18 @@ class Slots:
 
     def check_slots(self):
         self.finish_slots()
-
-        max_key_comp = max(self.computer_slots)
-        max_key_user = max(self.slots_all)
+        logging.debug("\n\nslots at check slots: %s\n", self.slots_all)
+        # max_key_comp = max(self.computer_slots)
+        # max_key_user = max(self.slots_all)
         last_note_slot_user = -1
         amount_notes = 0
         amount_accurate = 0
         counter = 0
         notes_checked = 0
+        feedback = True
 
         for key in reversed(self.slots_all.keys()):
-            print(key, self.slots_all[key])
+            # print(key, self.slots_all[key])
             if self.slots_all[key]:
                 last_note_slot_user = key
                 break
@@ -125,7 +129,6 @@ class Slots:
         for key in reversed(self.computer_slots.keys()):
             print(key, self.computer_slots[key])
             comp_notes = set(self.computer_slots[key])
-
             user_notes = self.slots_all[last_note_slot_user - counter]
 
             logging.info(
@@ -154,6 +157,7 @@ class Slots:
                     user_notes,
                     amount_accurate,
                 )
+
             else:
                 logging.info(
                     "Wrong notes played. Didn't match in slot. comp_notes %s\nuser_notes: %s\ncomp key: %s ",
@@ -162,23 +166,37 @@ class Slots:
                     key,
                 )
                 #                self.slots = {}
-                self.slots_all = {}
+                # self.slots_all = {}
 
-                return False
+                feedback = False
+                break
+                # return False
             notes_checked += 1
 
         logging.info("notes checked: %s", notes_checked)
 
+        self.erase_slots()
+
+        if not feedback:
+            print("Quitting note check because of wrong notes.")
+            return False
+
         accuracy_rate = round(amount_accurate / amount_notes, 2)
         logging.info("\nALL MATCHED!! ACCURACY RATE: %s", accuracy_rate)
 
-        for key in self.slots:
-            self.slots[key] = []
-        for key in self.slots_all:
-            self.slots_all[key] = []
         # self.slots = {}
         # self.slots_all = {}
+        logging.debug("\n\nSlots afte check_slots: %s\n\n", self.slots_all)
         return accuracy_rate
+
+    def erase_slots(self):
+        for key in self.slots:
+            #            self.slots[key] = []
+            self.slots[key][1] = {}
+
+        for key in self.slots_all:
+            # print("slot key: ", key)
+            self.slots_all[key] = []  # Was {}
 
 
 slots = Slots()
@@ -189,12 +207,16 @@ class BarContainer:
 
     def __init__(self):
         self.bars = {}
+        self.bars_continuing = queue.Queue()
         self.make_empty_bars()
 
     def make_empty_bars(self):
         self.bars = {}
         for x in range(88):
             self.bars[x] = []
+
+    def clear_continuing(self):
+        self.bars_continuing = queue.Queue()
 
 
 barcontainer = BarContainer()
@@ -310,28 +332,32 @@ class Table:
         return self.vert_time_table, self.all_vert_times, self.grid_table
 
 
-# table = Table()
-
-
-def init_table():
-    # TODO: Put the tables in PianoRollSprite instance in stead of copying
-    global table
-    table = Table()
-    settings.vert_time_table = table.vert_time_table
-
-
 class Bar:
     """
     Note bar definitions.
     """
 
-    def __init__(self, x, y, w, h, color, rect, pitch, playing, continuing):
+    __slots__ = (
+        "x",
+        "y",
+        "w",
+        "h",
+        "color",
+        "bar_rectangle",
+        "pitch",
+        "playing",
+        "continuing",
+        "copied_from_previous",
+    )
+
+    def __init__(self, x, y, w, h, color, bar_rectangle, pitch, playing, continuing):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.color = color
-        self.bar_rectangle = rect
+        #        self.bar_rectangle = rect
+        self.bar_rectangle = bar_rectangle
         self.continuing = continuing
         self.playing = playing
         self.pitch = pitch
@@ -339,13 +365,16 @@ class Bar:
 
 
 class PianoRollSprite(pygame.sprite.Sprite):
-    def __init__(self, height, width, name, order):
+
+    def __init__(self, height, width, name, order, table):
         super().__init__()
 
         self.name = name
         self.order = order
         self.screen_height = height
         self.screen_width = width
+        self.table = table
+
         self.clock = 0.0
         self.bars = {}
         self.vert_time_table = {}
@@ -410,40 +439,10 @@ class PianoRollSprite(pygame.sprite.Sprite):
         [ [pixel nr, time, metro True, line_time] ]
         """
         global slots
-
         # ????
-        slots.finish_slots()
+        # slots.finish_slots()
 
-        init_table()
-
-        #        global table
-        #        table = Table()
-        self.grid_table = []
-        beat_time = 60 / settings.bpm
-        pixels_per_beat = settings.width / self.beats_per_screen
-        self.time_per_screen = beat_time * self.beats_per_screen
-
-        pixel_time = float(beat_time / pixels_per_beat)
-        total_time = float(0.0)
-        metro_pixel_interval = round((pixels_per_beat) / self.beat_division)
-
-        self.vert_time_table = copy.deepcopy(table.vert_time_table)
-        self.all_vert_times = copy.deepcopy(table.all_vert_times)
-        self.grid_table = copy.deepcopy(table.grid_table)
-
-        logging.debug(
-            (
-                "\nmetro_pixel_interval %s beat time: %s pixels_per_beat: %s"
-                " self.time_per_screen: %s pixel_time: %s"
-                " self.amount_vert_lines: %s"
-            ),
-            metro_pixel_interval,
-            beat_time,
-            pixels_per_beat,
-            self.time_per_screen,
-            pixel_time,
-            self.amount_vert_lines,
-        )
+        self.grid_table = copy.deepcopy(self.table.grid_table)
 
     def check_grid_table(self, clock):
         """
@@ -522,7 +521,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
         top = self.calc_key_and_height(pitch)
         height = self.horiz_distance
 
-        global bars_continuing
+        #        global bars_continuing
         global slots
 
         try:
@@ -568,7 +567,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
                     self.barcontainer.bars[pitch].append(bar)
                 except KeyError:
                     self.barcontainer.bars[pitch] = [bar]
-                bars_continuing.put([bar])
+                self.barcontainer.bars_continuing.put([bar])
 
                 # pitch, accurate True, which slot (line_time)
                 slots.add_note(
@@ -588,13 +587,12 @@ class PianoRollSprite(pygame.sprite.Sprite):
             - ((pitch) * self.horiz_distance)
             - (4 * self.horiz_distance)
         )
-        height = self.horiz_distance
         return top
 
     def update_bars(self):
         """Update all note bars on the grid."""
         new_bars = {}
-        global bars_continuing
+        #        global bars_continuing
 
         # Decide which bar are included when refreshing screen
         for pitch in self.barcontainer.bars:
@@ -742,12 +740,12 @@ class PianoRollSprite(pygame.sprite.Sprite):
         # TODO: Put slice to match with divisions!!!
 
         prev_line_time, next_line_time, move_to_next = self.find_two_nearest_values(
-            self.all_vert_times, note_time
+            self.table.all_vert_times, note_time
         )
 
         # Was [0:41]
 
-        logging.debug("all vert times %s ", self.all_vert_times)
+        logging.debug("all vert times %s ", self.table.all_vert_times)
         logging.debug(
             "prev line time: %s next line time: %s note time: %s",
             prev_line_time,
@@ -780,7 +778,10 @@ class PianoRollSprite(pygame.sprite.Sprite):
         #     distance,
         # )
 
-        if next_line_time == max(self.all_vert_times) and put_in == next_line_time:
+        if (
+            next_line_time == max(self.table.all_vert_times)
+            and put_in == next_line_time
+        ):
             move_to_next = True
         else:
             move_to_next = False

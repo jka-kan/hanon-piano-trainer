@@ -66,8 +66,9 @@ class App:
                 print(pygame.midi.get_init())
             except (AttributeError, UnboundLocalError):
                 pass
+        pygame.midi.quit()
 
-    # -------------------- Sprites ------------------------
+    # -------------------- Sprites and threading start ------------------------
     def init_app(self, first=False):
         for grid in self.grid_order:
             grid.destroy()
@@ -314,16 +315,11 @@ class App:
             self.clock.tick(120)
 
         print("Exiting…")
-        self.midi_stop()
-        pygame.midi.quit()
-        pygame.quit()
-        sys.exit(0)
 
 
 # Read variable arguments and start main routine
 if __name__ == "__main__":
     app = App()
-    app.init_midi()
     app.init_pygame()
     parser = argparse.ArgumentParser()
     parser.add_argument("bpm", type=int, help="BPM")
@@ -333,6 +329,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     settings.bpm = args.bpm
     app.hands = args.hands
+    app.init_midi()
+
     app.init_app(first=True)
 
     if args.song:
@@ -340,3 +338,7 @@ if __name__ == "__main__":
         app.load_song()
 
     app.main()
+
+    app.midi_stop()
+    pygame.quit()
+    sys.exit(0)

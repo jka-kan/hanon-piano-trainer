@@ -146,6 +146,13 @@ class App:
         #     "\nwrap: slots: ", self.grid_order[1].slots.slots, "!!!!!!!!!!!!!!!!!!!!!!"
         # )
         #  #        if not self.first_round:
+
+        # # Copy notes that overlap to the next grid
+        # self.grid_order[0].copy_continuing_bars(self.grid_order[1])
+        # # Stop notes in the old grid
+        # # A note continuing from the old grid to the new is actually to notes connected
+        # self.grid_order[1].stop_continuing_bars()
+
         self.grid_order[1].finish_grid()
         #      else:
         #        self.first_round = False
@@ -154,19 +161,20 @@ class App:
         #        new_grid.rect.x = settings.width
 
         self.grid_order[0], self.grid_order[1] = self.grid_order[1], self.grid_order[0]
-        # Copy notes that overlap to the next grid
-        #        self.grid_order[1].copy_continuing_bars(self.grid_order[0])
+
         self.grid_order[0].order, self.grid_order[1].order = (
             self.grid_order[1].order,
             self.grid_order[0].order,
         )
 
         self.grid_order[1].init_roller()
-
+        # Copy notes that overlap to the next grid
+        self.grid_order[1].copy_continuing_bars(self.grid_order[0])
         # Stop notes in the old grid
         # A note continuing from the old grid to the new is actually to notes connected
+        self.grid_order[0].stop_continuing_bars()
 
-        #         self.grid_order[1].stop_continuing_bars()
+        # print("bar_container after init_roller: ", self.grid_order[1].barcontainer.bars)
 
         # Delete the left side grid and add new
         #        self.grid_order[0].kill()
@@ -174,7 +182,7 @@ class App:
         #        self.grid_order.append(new_grid)
         #        self.grid_group.add(new_grid)
 
-        print("\n\nGrid changed!\n\n")
+        # print("\n\nGrid changed!\n\n")
 
     # -------------------- Main ---------------------------
     def main(self):

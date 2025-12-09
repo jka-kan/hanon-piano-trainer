@@ -16,8 +16,8 @@ logging.basicConfig(
     style="%",
     datefmt="%Y-%m-%d %H:%M",
     force=True,
-    level=logging.DEBUG,
-    # level=logging.INFO,
+    # level=logging.DEBUG,
+    level=logging.INFO,
 )
 
 
@@ -65,12 +65,14 @@ class Bar:
         self.w = w
         self.h = h
         self.color = color
-        #        self.bar_rectangle = rect
         self.bar_rectangle = bar_rectangle
         self.continuing = continuing
         self.playing = playing
         self.pitch = pitch
         self.copied_from_previous = False
+
+
+################################################################################
 
 
 class SlotContainer:
@@ -92,12 +94,7 @@ class SlotContainer:
                 except KeyError:
                     self.computer_slots[slot] = [pitch[0] - 21]
 
-    def finish_slots(self, grid_slots):
-        logging.debug(
-            "starting finish_slots at slot_container, self.slot_list: %s",
-            self.slot_list,
-        )
-
+    def transfer_slots(self, grid_slots):
         if self.move_from_prev_grid:
             for elem in self.move_from_prev_grid:
                 new_pitch = elem[0]
@@ -117,7 +114,13 @@ class SlotContainer:
                 # logging.debug("after next grid self.slots: %s", self.slots)
             self.move_from_prev_grid = []
 
-        # Copy slots from
+    def finish_slots(self, grid_slots):
+        logging.debug(
+            "starting finish_slots at slot_container, self.slot_list: %s",
+            self.slot_list,
+        )
+
+        # Copy slots from grid to combined container
         for line_time in grid_slots:
             logging.debug("line_time: %s", line_time)
             try:
@@ -206,7 +209,6 @@ class SlotContainer:
 
         logging.info("notes checked: %s", notes_checked)
 
-        #        self.erase_slots()
         self.clear_slot_list()
 
         if not feedback:
@@ -254,46 +256,6 @@ class Slot:
         )
         self.pointer += 1
 
-    # def bak_finish_slots(self):
-    #     logging.debug("self.slots at finish_slots - Slot() %s", self.slots)
-    #     global slot_container
-    #     slot_container.finish_slots(self.slots)
-    #     for key in self.slots:
-    #         self.slots[key][1] = {}
-
-    # def bak_finish_slots(self):
-    #     logging.debug("starting finish_slots, self.slots_all: %s", self.slots_all)
-    #     first_empty_slot = 0
-    #
-    #     # Find first empty slot
-    #     for key in self.slots_all:
-    #         print("key: ", key)
-    #         if not self.slots_all[key]:
-    #             first_empty_slot = key
-    #             logging.debug("first_empty_slot: %s", first_empty_slot)
-    #             break
-    #
-    #     # Copy slots from self.slots to self.slots_all
-    #     for line_time in self.slots:
-    #         logging.debug("line_time: %s", line_time)
-    #         logging.debug("before process self.slots: %s", self.slots)
-    #         try:
-    #             # if self.slots[line_time][1]:
-    #             #                    self.slots_all[self.slots[line_time][0]] = self.slots[line_time][1]
-    #             self.slots_all[first_empty_slot] = self.slots[line_time][1]
-    #             first_empty_slot += 1
-    #         except IndexError:
-    #             logging.debug("\nfinish_slots index error: %s\n", line_time)
-    #             pass
-    #
-    #     logging.debug(
-    #         "at finish slots: self.slots_all: %s\nself.slots: %s",
-    #         self.slots_all,
-    #         self.slots,
-    #     )
-    #     for key in self.slots:
-    #         self.slots[key][1] = {}
-
     def add_note(self, pitch, line_time, accurate, to_next_grid):
 
         # Check if note waiting for going to next grid
@@ -329,97 +291,6 @@ class Slot:
                     self.computer_slots[slot].append(pitch[0] - 21)
                 except KeyError:
                     self.computer_slots[slot] = [pitch[0] - 21]
-
-    # def check_slots(self):
-    #     # self.finish_slots()
-    #     global slot_container
-    #     return slot_container.check_slots()
-    #
-    #     logging.debug(
-    #         "\n\ncheck_slots called. slots at check slots: %s\n", self.slots_all
-    #     )
-    #     # max_key_comp = max(self.computer_slots)
-    #     # max_key_user = max(self.slots_all)
-    #     last_note_slot_user = -1
-    #     amount_notes = 0
-    #     amount_accurate = 0
-    #     counter = 0
-    #     notes_checked = 0
-    #     feedback = True
-    #
-    #     # Find last key in user notes
-    #     for key in reversed(self.slots_all.keys()):
-    #         # print(key, self.slots_all[key])
-    #         if self.slots_all[key]:
-    #             last_note_slot_user = key
-    #             break
-    #     logging.info("Last key in user notes: %s", last_note_slot_user)
-    #
-    #     if last_note_slot_user < 0:
-    #         return
-    #
-    #     for key in reversed(self.computer_slots.keys()):
-    #         print(key, self.computer_slots[key])
-    #         comp_notes = set(self.computer_slots[key])
-    #         user_notes = self.slots_all[last_note_slot_user - counter]
-    #
-    #         logging.info(
-    #             "\nUSER notes in slot: %s\ndict key: %s\nComp notes in slot: %s",
-    #             user_notes,
-    #             last_note_slot_user - counter,
-    #             comp_notes,
-    #         )
-    #
-    #         for pitch in user_notes:
-    #             amount_notes += 1
-    #             if user_notes[pitch]:
-    #                 amount_accurate += 1
-    #                 logging.info(
-    #                     "SINGLE NOTE IN SLOT IS ACCURATE, amount accurates: %s",
-    #                     amount_accurate,
-    #                 )
-    #         counter += 1
-    #
-    #         user_notes = set(user_notes)
-    #
-    #         if user_notes and comp_notes == user_notes:
-    #             logging.info(
-    #                 "ALL NOTES IN SLOT MATCH. comp_notes: %s\nuser_notes: %s\namount_accurate: %s",
-    #                 comp_notes,
-    #                 user_notes,
-    #                 amount_accurate,
-    #             )
-    #
-    #         else:
-    #             logging.info(
-    #                 "Wrong notes played. Didn't match in slot. comp_notes %s\nuser_notes: %s\ncomp key: %s ",
-    #                 comp_notes,
-    #                 user_notes,
-    #                 key,
-    #             )
-    #             #                self.slots = {}
-    #             # self.slots_all = {}
-    #
-    #             feedback = False
-    #             break
-    #             # return False
-    #         notes_checked += 1
-    #
-    #     logging.info("notes checked: %s", notes_checked)
-    #
-    #     self.erase_slots()
-    #
-    #     if not feedback:
-    #         print("Quitting note check because of wrong notes.")
-    #         return False
-    #
-    #     accuracy_rate = round(amount_accurate / amount_notes, 2)
-    #     logging.info("\nALL MATCHED!! ACCURACY RATE: %s", accuracy_rate)
-    #
-    #     # self.slots = {}
-    #     # self.slots_all = {}
-    #     logging.debug("\n\nSlots after check_slots: %s\n\n", self.slots_all)
-    #     return accuracy_rate
 
     def erase_slots(self):
         for key in self.slots:
@@ -598,7 +469,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
         self.received_bars = {}
 
         #        self.precise_x = float(self.rect.x)
-        #        self.init_roller()
 
         # Draw static grid once on the pristine surface
         self._draw_horiz_lines(self.grid_surface)
@@ -795,13 +665,17 @@ class PianoRollSprite(pygame.sprite.Sprite):
     # Precise position calculation not currently in use
     def init_roller(self):
         self.precise_x = settings.width
-        print("rect.x: ", self.rect.x, "name", self.name, "order: ", self.order)
+        # print("rect.x: ", self.rect.x, "name", self.name, "order: ", self.order)
         self.rect.x = settings.width
-        print(
-            "After -- rect.x: ", self.rect.x, "name", self.name, "order: ", self.order
-        )
+        # print(
+        #    "After -- rect.x: ", self.rect.x, "name", self.name, "order: ", self.order
+        # )
         self.make_grid_table()
         self.slots.erase_slots()
+
+        global slot_container
+        slot_container.transfer_slots(self.slots.slots)
+
         self.barcontainer.make_empty_bars()
 
     def set_bar_color(self, color):
@@ -819,11 +693,11 @@ class PianoRollSprite(pygame.sprite.Sprite):
     # example: flip color after moving (your logic can set_bar_color() instead)
     # self.set_bar_color("green")
 
+    # Called: 1) when changing grid, 2) When playing paused
     def finish_grid(self):
         # self.slots.finish_slots()
         global slot_container
         slot_container.finish_slots(self.slots.slots)
-        # self.slots = Slot()
 
         self.slots.erase_slots()
 
@@ -862,7 +736,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
     def copy_continuing_bars(self, other):
         # Notes continuing to the next grid are copied to a container when
-        # new pianoroll instance is created.
+        # grid changes.
         for pitch in other.barcontainer.bars:
             if other.barcontainer.bars[pitch]:
                 new_bar = copy.deepcopy(other.barcontainer.bars[pitch][-1])
@@ -874,7 +748,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
                     new_bar.playing = True
                     self.barcontainer.bars[pitch] = [new_bar]
 
-    # print("\n\ncontainer", self.barcontainer.bars)
+    #        print("\n\nbar container", self.barcontainer.bars, "\n")
 
     def find_two_nearest_values(self, data_list, target_value):
         """

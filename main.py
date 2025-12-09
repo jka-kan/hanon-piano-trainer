@@ -40,6 +40,8 @@ class App:
         self.song = None
         self.midi_routine = MidiRoutine()
         self.table = None  # pianoroll.Table()
+        self.pause_between_notes = True
+        self.first_round = True
 
     def init_pygame(self):
         pygame.init()
@@ -75,22 +77,18 @@ class App:
             grid.destroy()
 
         # Check: why does removing this double table init cause error?
-        self.table = pianoroll.Table()  # .init_table()
+        #        self.table = pianoroll.Table  # .init_table()
 
         self.grid_group = pygame.sprite.Group()
 
         # First grid on-screen
-        self.grid_a = PianoRollSprite(
-            settings.height, settings.width, "A", 1, self.table
-        )
+        self.grid_a = PianoRollSprite(settings.height, settings.width, "A", 1)
         self.grid_a.rect.topleft = (0, 0)
         #    grid_a.precise_x = float(grid_a.rect.left)  # This can be used later to create smoother scroll
 
         # Second grid just off-screen to the right
 
-        self.grid_b = PianoRollSprite(
-            settings.height, settings.width, "B", 2, self.table
-        )
+        self.grid_b = PianoRollSprite(settings.height, settings.width, "B", 2)
         self.grid_b.rect.topleft = (settings.width, 0)  # +1
         #    grid_b.precise_x = float(grid_b.rect.left)
 
@@ -144,22 +142,37 @@ class App:
         """
 
         #         self.grid_order[1].reset_grid()
+        # print(
+        #     "\nwrap: slots: ", self.grid_order[1].slots.slots, "!!!!!!!!!!!!!!!!!!!!!!"
+        # )
+        #  #        if not self.first_round:
+        self.grid_order[1].finish_grid()
+        #      else:
+        #        self.first_round = False
 
-        new_grid = PianoRollSprite(settings.height, settings.width, "A", 2, self.table)
-        new_grid.rect.x = settings.width
+        #        new_grid = PianoRollSprite(settings.height, settings.width, "A", 2)
+        #        new_grid.rect.x = settings.width
 
+        self.grid_order[0], self.grid_order[1] = self.grid_order[1], self.grid_order[0]
         # Copy notes that overlap to the next grid
-        new_grid.copy_continuing_bars(self.grid_order[1])
+        #        self.grid_order[1].copy_continuing_bars(self.grid_order[0])
+        self.grid_order[0].order, self.grid_order[1].order = (
+            self.grid_order[1].order,
+            self.grid_order[0].order,
+        )
+
+        self.grid_order[1].init_roller()
 
         # Stop notes in the old grid
         # A note continuing from the old grid to the new is actually to notes connected
-        self.grid_order[1].stop_continuing_bars()
+
+        #         self.grid_order[1].stop_continuing_bars()
 
         # Delete the left side grid and add new
-        self.grid_order[0].kill()
-        self.grid_order.pop(0)
-        self.grid_order.append(new_grid)
-        self.grid_group.add(new_grid)
+        #        self.grid_order[0].kill()
+        #        self.grid_order.pop(0)
+        #        self.grid_order.append(new_grid)
+        #        self.grid_group.add(new_grid)
 
         print("\n\nGrid changed!\n\n")
 
@@ -179,9 +192,18 @@ class App:
         zero_time = 0
 
         if self.song:
-            pianoroll.slots.make_comp_slots(self.song)
+            pianoroll.slot_container.make_comp_slots(self.song)
 
         while running:
+
+            # print(
+            #     "grid 0: ",
+            #     self.grid_order[0].name,
+            #     self.grid_order[0].rect.x,
+            #     "grid 1: ",
+            #     self.grid_order[1].name,
+            #     self.grid_order[1].rect.x,
+            # )
             # Keep original timing relation for the grid logic
             # New pianoroll grid gets always the same time codes as previous ones
             # Time has to be adjusted to the midi time which is linear
@@ -228,25 +250,41 @@ class App:
 
                 self.grid_order[1].make_bar(channel, pitch, note_time)  # , line_time)
                 pause_start = time.perf_counter()
+                self.pause_between_notes = False
 
             try:
                 pause_time = time.perf_counter() - pause_start
-                if pause_time >= 1 and self.song:
-                    result = pianoroll.slots.check_slots()
+                # print(
+                #     "\npause_time: ",
+                #     pause_time,
+                #     "pause_start: ",
+                #     pause_start,
+                #     "perf_counter: ",
+                #     time.perf_counter(),
+                #     "pause_between: ",
+                #     self.pause_between_notes,
+                #     " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+                # )
+
+                if pause_time >= 1 and self.song and not self.pause_between_notes:
+                    self.pause_between_notes = True
+                    self.grid_order[1].finish_grid()
+                    result = pianoroll.slot_container.check_slots()
                     if result:
                         filemanager.log_result(
                             self.filename, result, settings.bpm, self.hands
                         )
+                # pause_start = time.perf_counter()
 
-                    pause_start = None
             except TypeError:
                 pass
 
             # Wrap if the grid is finished (out of the screen)
             if grid_finished:
                 rounds += (
-                    self.table.time_per_screen
-                )  # self.grid_order[0].time_per_screen
+                    # self.table.time_per_screen )
+                    self.grid_order[0].table.time_per_screen
+                )
                 self.wrap_and_reseed_if_needed()
 
             # --- Keyboard shortcuts ---

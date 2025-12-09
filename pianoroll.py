@@ -43,7 +43,7 @@ barcontainer = BarContainer()
 
 class Bar:
     """
-    Note bar definitions.
+    Note bar rectangle definitions.
     """
 
     __slots__ = (
@@ -199,12 +199,9 @@ class SlotContainer:
                     user_notes,
                     key,
                 )
-                #                self.slots = {}
-                # self.slots_all = {}
 
                 feedback = False
                 break
-                # return False
             notes_checked += 1
 
         logging.info("notes checked: %s", notes_checked)
@@ -218,9 +215,6 @@ class SlotContainer:
         accuracy_rate = round(amount_accurate / amount_notes, 2)
         logging.info("\nALL MATCHED!! ACCURACY RATE: %s", accuracy_rate)
 
-        # self.slots = {}
-        # self.slots_all = {}
-        # logging.debug("\n\nSlots after check_slots: %s\n\n", self.slots_all)
         return accuracy_rate
 
 
@@ -233,6 +227,7 @@ class Slot:
         self.pointer = 0
         self.slots_all = {}  # slot: [pitches]
         self.computer_slots = {}
+        # Just for testing slots
         self.computer_slots_test = {
             0: [19],
             1: [21],
@@ -263,23 +258,12 @@ class Slot:
             logging.debug(
                 "putting to wait to next grid: %s %s %s", pitch, line_time, accurate
             )
-            # self.wait_to_next_grid.append((pitch, line_time, accurate))
             global slot_container
             slot_container.move_from_prev_grid.append((pitch, line_time, accurate))
             return
 
         try:
             self.slots[line_time][1][pitch] = accurate
-            # if self.wait_to_next_grid:
-            #     for elem in self.wait_to_next_grid:
-            #         new_pitch = elem[0]
-            #         new_line_time = 0.0
-            #         new_accurate = elem[2]
-            #         self.slots[new_line_time][1][new_pitch] = new_accurate
-            #         logging.debug("\nadd_note to next grid: %s", self.wait_to_next_grid)
-            #         logging.debug("after next grid self.slots: %s", self.slots)
-            #     self.wait_to_next_grid = []
-
         except KeyError:
             raise
         logging.debug("\nself.slots at add_note: %s \n", self.slots)
@@ -294,11 +278,9 @@ class Slot:
 
     def erase_slots(self):
         for key in self.slots:
-            #            self.slots[key] = []
             self.slots[key][1] = {}
 
         for key in self.slots_all:
-            # print("slot key: ", key)
             self.slots_all[key] = []  # Was {}
 
 
@@ -320,7 +302,6 @@ class Table:
 
         # How many vertical lines in the grid
         self.amount_vert_lines = settings.line_division * self.beats_per_screen
-        # self.make_grid()
 
     def make_grid(self, slots):
         """
@@ -355,6 +336,7 @@ class Table:
 
         first_metro = True
         vert_line = False
+
         # Metronome intervals is a number of pixels between every tick
         # If the pixel number matches with this interval, put it in the list as a vertical line
         for pixel_nr in range(settings.width):
@@ -369,11 +351,7 @@ class Table:
                 self.vert_time_table[total_time] = pixel_nr
                 self.all_vert_times.append(round(total_time, 4))
                 vert_line = True
-                # settings.slot_time_table[round(total_time, 4)] = [slots.pointer, []]
-                # slots.inc_pointer += 1
-                #                if not self.one_grid_made:
                 slots.make_slot(round(total_time, 4))
-                # logging.debug("total_time: %s", total_time)
 
             else:
                 vert_line = False
@@ -386,10 +364,7 @@ class Table:
             self.grid_table.append(
                 [pixel_nr, round(total_time, 4), metro, line_time, vert_line]
             )
-            # self.grid_table.append([pixel_nr, total_time, metro, line_time, vertical line at this point])
             total_time += pixel_time
-
-            # slots.finish_slots()
 
         logging.debug("total_time: %s", total_time)
         logging.debug("slot_time_table: %s", settings.slot_time_table)
@@ -486,10 +461,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
         """
         [ [pixel nr, time, metro True, line_time] ]
         """
-        #         global slots
-        # ????
-        # slots.finish_slots()
-
         self.grid_table = copy.deepcopy(self.table.grid_table)
 
     def check_grid_table(self, clock):
@@ -512,6 +483,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
             while self.grid_table[0][1] <= clock:  # Was if
                 if self.grid_table[0][2]:
                     metro = True
+                    # For future implementation of audio metronome
                     # metro_queue.put(True)
 
                 if self.grid_table.pop(0)[4]:
@@ -524,14 +496,11 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
                 pixels_removed += 1
 
-            # if self.grid_table[0][1] > clock:
-        #                break
         except IndexError:
             grid_finished = True
 
         if self.grid_table:
             cur_time = self.grid_table[0][1]
-            # line_time = self.grid_table[0][3]
         else:
             cur_time = -1
             logging.debug("remove %s", pixels_removed)
@@ -567,8 +536,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
         """Set bar position; actual drawing happens in update()."""
         top = self.calc_key_and_height(pitch)
         height = self.horiz_distance
-
-        #        global bars_continuing
         global slots
 
         try:
@@ -643,8 +610,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
     def update_bars(self):
         """Update all note bars on the grid."""
         new_bars = {}
-        #        global bars_continuing
-
         # Decide which bar are included when refreshing screen
         for pitch in self.barcontainer.bars:
             for bar in self.barcontainer.bars[pitch]:
@@ -695,10 +660,8 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
     # Called: 1) when changing grid, 2) When playing paused
     def finish_grid(self):
-        # self.slots.finish_slots()
         global slot_container
         slot_container.finish_slots(self.slots.slots)
-
         self.slots.erase_slots()
 
     def stop_continuing_bars(self):
@@ -732,7 +695,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
                         self.barcontainer.bars[pitch][-1] = bar
                     except KeyError:
                         raise
-                        self.barcontainer.bars[pitch] = [bar]
 
     def copy_continuing_bars(self, other):
         # Notes continuing to the next grid are copied to a container when
@@ -795,9 +757,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
         The note start time is compared to the nearest vertical line time stamp.
         The code assumes that the player tried to hit the nearest line.
         """
-        # first_found = False
-        # rect_x_to_border = settings.width - self.rect.x
-
         #        print("NOTE TIME AT CHECK: ", note_time)
         prev_line_time = 0.0
         next_line_time = 0.0
@@ -862,8 +821,8 @@ class PianoRollSprite(pygame.sprite.Sprite):
     def move(self, pixels):
         self.rect.x -= pixels
 
-    def destroy(self):
-        self.kill()
+    # def destroy(self):
+    #     self.kill()
 
     def update(self, rate):
         # rebuild the sprite image from the pristine grid each frame

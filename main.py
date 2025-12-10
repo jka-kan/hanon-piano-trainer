@@ -25,8 +25,8 @@ import argparse
 
 
 class App:
-    def __init__(self) -> None:
-        self.hands = ""
+    def __init__(self, hands) -> None:
+        self.hands = hands
         self.filename = ""
         self.screen = None
         self.clock = None
@@ -39,6 +39,9 @@ class App:
         self.metronome_thread = None
         self.song = None
         self.midi_routine = MidiRoutine()
+        self.table = None  # pianoroll.Table()
+        self.pause_between_notes = True
+        self.first_round = True
 
     def init_pygame(self):
         pygame.init()
@@ -74,7 +77,7 @@ class App:
             grid.destroy()
 
         # Check: why does removing this double table init cause error?
-        pianoroll.init_table()
+        #        self.table = pianoroll.Table  # .init_table()
 
         self.grid_group = pygame.sprite.Group()
 
@@ -134,29 +137,34 @@ class App:
     # -------------------- Wrap when grid finished ---------------------
     def wrap_and_reseed_if_needed(self):
         """
-        After sprites moved this frame:
-        - Reset the right grid and replace the left grid with a fresh one on the right.
+        When grid goes out of screen:
+        - Finish it by putting all the notes to slot_container
+        - Move it to right side of screen by switching the order of grids
+        - Initialize necessary attributes
+        - Copy notes that continue to next grid
+        No new grid instances are created, because time use must be minimized in order to
+        guarantee smooth change of grid.
         """
 
-        #     grid_order[1].reset_grid()
+        self.grid_order[1].finish_grid()
+        self.grid_order[0], self.grid_order[1] = self.grid_order[1], self.grid_order[0]
 
-        new_grid = PianoRollSprite(settings.height, settings.width, "A", 2)
-        new_grid.rect.x = settings.width
+        self.grid_order[0].order, self.grid_order[1].order = (
+            self.grid_order[1].order,
+            self.grid_order[0].order,
+        )
+
+        self.grid_order[1].init_roller()
 
         # Copy notes that overlap to the next grid
-        new_grid.copy_continuing_bars(self.grid_order[1])
+        self.grid_order[1].copy_continuing_bars(self.grid_order[0])
 
         # Stop notes in the old grid
         # A note continuing from the old grid to the new is actually to notes connected
-        self.grid_order[1].stop_continuing_bars()
+        self.grid_order[0].stop_continuing_bars()
 
-        # Delete the left side grid and add new
-        self.grid_order[0].kill()
-        self.grid_order.pop(0)
-        self.grid_order.append(new_grid)
-        self.grid_group.add(new_grid)
-
-        print("Grid changed!")
+        # print("bar_container after init_roller: ", self.grid_order[1].barcontainer.bars)
+        # print("\n\nGrid changed!\n\n")
 
     # -------------------- Main ---------------------------
     def main(self):
@@ -171,12 +179,12 @@ class App:
 
         # Measure pauses in playing. After a pause check whether played notes match with song notes.
         pause_start = None
-        zero_time = 0
 
         if self.song:
-            pianoroll.slots.make_comp_slots(self.song)
+            pianoroll.slot_container.make_comp_slots(self.song)
 
         while running:
+
             # Keep original timing relation for the grid logic
             # New pianoroll grid gets always the same time codes as previous ones
             # Time has to be adjusted to the midi time which is linear
@@ -204,7 +212,6 @@ class App:
 
             # Test: controlling metronome ticks from main routine
             # This resulted uneven ticks
-
             # if metro:
             #     # Directly trigger a short MIDI tick (no audio, no events)
             #     midi_tick(received_time=time_diff)  # plays note_on, short gate, note_off
@@ -226,23 +233,39 @@ class App:
 
                 self.grid_order[1].make_bar(channel, pitch, note_time)  # , line_time)
                 pause_start = time.perf_counter()
+                self.pause_between_notes = False
 
             try:
                 pause_time = time.perf_counter() - pause_start
-                if pause_time >= 1 and self.song:
-                    result = pianoroll.slots.check_slots()
+                # print(
+                #     "\npause_time: ",
+                #     pause_time,
+                #     "pause_start: ",
+                #     pause_start,
+                #     "perf_counter: ",
+                #     time.perf_counter(),
+                #     "pause_between: ",
+                #     self.pause_between_notes,
+                # )
+
+                if pause_time >= 1 and self.song and not self.pause_between_notes:
+                    self.pause_between_notes = True
+                    self.grid_order[1].finish_grid()
+                    result = pianoroll.slot_container.check_slots()
                     if result:
                         filemanager.log_result(
                             self.filename, result, settings.bpm, self.hands
                         )
 
-                    pause_start = None
             except TypeError:
                 pass
 
             # Wrap if the grid is finished (out of the screen)
             if grid_finished:
-                rounds += self.grid_order[0].time_per_screen
+                rounds += (
+                    # self.table.time_per_screen )
+                    self.grid_order[0].table.time_per_screen
+                )
                 self.wrap_and_reseed_if_needed()
 
             # --- Keyboard shortcuts ---
@@ -319,18 +342,19 @@ class App:
 
 # Read variable arguments and start main routine
 if __name__ == "__main__":
-    app = App()
-    app.init_pygame()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("bpm", type=int, help="BPM")
     parser.add_argument("hands", type=str, help="Hands")
     parser.add_argument("song", type=str, nargs="?", help="Song name")
-
     args = parser.parse_args()
     settings.bpm = args.bpm
-    app.hands = args.hands
-    app.init_midi()
 
+    app = App(args.hands)
+    app.init_pygame()
+    #    app.hands = args.hands
+
+    app.init_midi()
     app.init_app(first=True)
 
     if args.song:

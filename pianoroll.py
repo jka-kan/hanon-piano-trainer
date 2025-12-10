@@ -460,7 +460,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
         metro = False
         pixels_removed = 0
         grid_finished = False
-
+        start_time = perf_counter()
         # while True:
         try:
             while self.grid_table[0][1] <= clock:  # Was if
@@ -468,8 +468,8 @@ class PianoRollSprite(pygame.sprite.Sprite):
                     metro = True
                     # metro_queue.put(True)
 
-                if self.grid_table.pop(0)[4]:
-                    logging.debug("clock: %s", clock)
+                self.grid_table.pop(0)[4]
+                #                    logging.debug("clock: %s", clock)
 
                 for elem in self.grid_table:
                     if elem[3] >= 0:
@@ -482,7 +482,7 @@ class PianoRollSprite(pygame.sprite.Sprite):
         #                break
         except IndexError:
             grid_finished = True
-
+        print("time check: ", (perf_counter() - start_time) * 1000)
         if self.grid_table:
             cur_time = self.grid_table[0][1]
             # line_time = self.grid_table[0][3]
@@ -790,13 +790,13 @@ class PianoRollSprite(pygame.sprite.Sprite):
             return (False, put_in, move_to_next)
         return (True, put_in, move_to_next)
 
-    def move(self, pixels):
-        self.rect.x -= pixels
+    def move(self, pixels, dt):
+        self.rect.x -= pixels  # * dt
 
     def destroy(self):
         self.kill()
 
-    def update(self, rate):
+    def update(self, rate, dt):
         # rebuild the sprite image from the pristine grid each frame
         self.image = self.grid_surface.copy()
 
@@ -808,4 +808,4 @@ class PianoRollSprite(pygame.sprite.Sprite):
                 rect_obj = bar.bar_rectangle
 
                 pygame.draw.rect(self.image, color, rect_obj, 0)
-        self.move(rate)
+        self.move(rate, dt)

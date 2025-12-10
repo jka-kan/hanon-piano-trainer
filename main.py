@@ -186,10 +186,11 @@ class App:
             # Until the current midi time is found in the grid vertical points of the grid, pixels are removed
             # This is how line movement is perfectly synced with metronome ticks and midi in notes
             # Using clock caused out-of-sync
+            start_time = time.perf_counter()
             pixels_removed, metro, grid_finished, cur_time = self.grid_order[
                 0
             ].check_grid_table(time_diff)
-
+            print("time: ", (time.perf_counter() - start_time) * 1000)
             # print(
             #     "removed",
             #     pixels_removed,
@@ -207,9 +208,11 @@ class App:
             # if metro:
             #     # Directly trigger a short MIDI tick (no audio, no events)
             #     midi_tick(received_time=time_diff)  # plays note_on, short gate, note_off
-
+            # --- Time step ---
+            dt = self.clock.tick(1000) / 1000
+            print("dt: ", dt)
             # Update sprites (they should move using precise_x internally)
-            self.grid_group.update(pixels_removed)
+            self.grid_group.update(pixels_removed, dt)
 
             # Read incoming midi notes and draw bars on the grid
             while not self.midi_routine.midi_queue.empty():
@@ -310,9 +313,6 @@ class App:
             self.screen.blit(text_surface, (10, 10))
 
             pygame.display.flip()
-
-            # --- Time step ---
-            self.clock.tick(120)
 
         print("Exiting…")
 

@@ -344,7 +344,7 @@ class Table:
                 # Points marked with metro will trigger metronome tick
                 metro = True
             else:
-                metro = False
+              metro = False
                 first_metro = False
 
             if pixel_nr % (pixels_per_beat / settings.line_division) == 0:

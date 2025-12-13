@@ -61,6 +61,25 @@ class MidiRoutine:
     def midi_time_adjusted(self, midi_zero):
         return pygame.midi.time()  #  + midi_zero
 
+    def midi_send(self, message):
+        """
+        Kept for reference. No longer used for metronome tick.
+        Previously tried to read pygame events from a thread, which is unsafe.
+        """
+        channel = message[0][0]
+        pitch = message[0][1]
+        velocity = 50
+
+        if channel >= 144:
+            self.output.note_on(64, velocity)
+        else:
+            self.output.note_off(64, velocity)
+
+        # for event in pygame.event.get(eventtype=METRO_EVENT):
+        #     output.note_on(81 + 27, 30, 0)
+        #     output.note_off(81 + 27, 30, 0)
+        return
+
     def midi_tick(
         self,
         note=81 + 27,
@@ -103,7 +122,7 @@ class MidiRoutine:
                 step = (b - a) * 1000
 
                 for key in settings.vert_time_table:
-                    self.time_table.append(round(key * 1000) + adjusted)
+                    self.time_table.append((key * 1000) + adjusted)
                 self.rounds += 1
                 adjusted = self.time_table[-1] + step
 
@@ -111,20 +130,21 @@ class MidiRoutine:
             #            print("new adjusted: ", adjusted)
             # print(
             #     "\ntime table: ",
-            #     time_table,
+            #     self.time_table,
             #     " length: ",
-            #     len(time_table),
+            #     len(self.time_table),
             #     "midi time: ",
             #     pygame.midi.time(),
             #     "\n",
             # )
-            #
 
             midi_now = pygame.midi.time()
+            # print("at midi time: ", midi_now)
             if midi_now >= self.time_table[0]:
                 try:
                     # diff = round(received_time - self.prev_time, 4)
-                    self.prev_time = received_time
+                    # self.prev_time = received_time
+
                     # print(
                     #     "METRO out time: ",
                     #     pygame.midi.time() / 1000,
@@ -134,13 +154,16 @@ class MidiRoutine:
                     #     diff,
                     # )
                     #
+
                     self.output.note_on(note, settings.metro_volume, channel)
-                    time.sleep(gate_seconds)
+                    # time.sleep(0.001)
                     self.output.note_off(note, settings.metro_volume, channel)
                 except Exception as e:
                     logging.error(f"MIDI tick failed: {e}")
                 self.time_table.pop(0)
-
+            else:
+                time.sleep(0.002)
+        # pygame.time.delay(5)
         # This was a test for receiving metronome signals from elsewhere. Didn't sync well.
         ###################################################################################
         # def midi_tick(
@@ -173,25 +196,6 @@ class MidiRoutine:
         #     except Exception as e:
         #         logging.error(f"MIDI tick failed: {e}")
         ###################################################################################
-
-    def midi_send(self, message):
-        """
-        Kept for reference. No longer used for metronome tick.
-        Previously tried to read pygame events from a thread, which is unsafe.
-        """
-        channel = message[0][0]
-        pitch = message[0][1]
-        velocity = 50
-
-        if channel >= 144:
-            self.output.note_on(64, velocity)
-        else:
-            self.output.note_off(64, velocity)
-
-        # for event in pygame.event.get(eventtype=METRO_EVENT):
-        #     output.note_on(81 + 27, 30, 0)
-        #     output.note_off(81 + 27, 30, 0)
-        return
 
     def midi_listen(self):
 
@@ -230,27 +234,31 @@ class MidiRoutine:
             while self.metro_running.is_set():  # True:
                 try:
                     if self.midi_in.poll():
-                        midi_events = self.midi_in.read(16)
+                        midi_events = self.midi_in.read(5)
                         for midi_event in midi_events:
                             self.midi_queue.put(midi_event)
                             #              print(f"MIDI Event: {midi_event}")
-                            status = midi_event[0][0]
-                            if 0x90 <= status <= 0x9F:
-                                note = midi_event[0][1]
-                                velocity = midi_event[0][2]
-                                # print(
-                                #     "\nMIDI IN time: ",
-                                #     midi_event[1] / 1000,
-                                #     "interval: ",
-                                #     midi_event[1] - prev_note_time,
-                                #     "\n",
-                                # )
-                                # prev_note_time = midi_event[1]
-                            #                  print(f"Note On: Note={note}, Velocity={velocity}")
-                            elif 0x80 <= status <= 0x8F:
-                                note = midi_event[0][1]
-                #                  print(f"Note Off: Note={note}")
+
+                            # status = midi_event[0][0]
+                            # if 0x90 <= status <= 0x9F:
+                            #     note = midi_event[0][1]
+                            #     velocity = midi_event[0][2]
+                            #     # print(
+                            #     #     "\nMIDI IN time: ",
+                            #     #     midi_event[1] / 1000,
+                            #     #     "interval: ",
+                            #     #     midi_event[1] - prev_note_time,
+                            #     #     "\n",
+                            #     # )
+                            #     # prev_note_time = midi_event[1]
+                            # #                  print(f"Note On: Note={note}, Velocity={velocity}")
+                            # elif 0x80 <= status <= 0x8F:
+                            #     note = midi_event[0][1]
+
+                    else:
+                        # continue
+                        time.sleep(0.005)
+                        # pygame.time.delay(1)
                 except Exception as e:
                     logging.error(f"MIDI listen error: {e}")
                     time.sleep(0.1)
-                time.sleep(0.001)

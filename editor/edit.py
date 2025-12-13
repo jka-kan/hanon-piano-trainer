@@ -61,13 +61,15 @@ white_keys = {
 }
 import yaml
 
-alt_transition = []
+alt_transition_R = []
+alt_transition_L = []
 alt_transition_fingering_R = []
 alt_transition_fingering_L = []
 
-alt_ending = []
-alt_ending_fingering_R = []
+alt_ending_L = []
+alt_ending_R = []
 alt_ending_fingering_L = []
+alt_ending_fingering_R = []
 
 
 # 1
@@ -104,36 +106,59 @@ alt_ending_fingering_L = []
 # finger_up_L = [5, 4, 5, 3, 1, 2, 3, 4]
 # finger_down_L = [1, 2, 1, 3, 5, 4, 3, 2]
 
-# 5
+# # 5
 # pattern_up = ["C2", "A2", "G2", "A2", "F2", "G2", "E2", "F2"]
-# pattern_down = ["C4", "D4", "C4", "E4", "D3", "F4", "E4", "G4"]
+# pattern_down = ["C4", "D4", "C4", "E4", "D4", "F4", "E4", "G4"]
 #
 # finger_up_R = [1, 5, 4, 5, 3, 4, 2, 3]
 # finger_down_R = [1, 2, 1, 3, 2, 4, 3, 5]
 #
 # finger_up_L = [5, 1, 2, 1, 3, 2, 3, 4]
 # finger_down_L = [5, 4, 5, 3, 4, 2, 3, 1]
+# amount = 14
 
-# 6
-pattern_up = ["C2", "A2", "G2", "A2", "F2", "A2", "E2", "A2"]
-pattern_down = ["G4", "B3", "C4", "B3", "D4", "B3", "E4", "B3"]
+# # 6
+# pattern_up = ["C2", "A2", "G2", "A2", "F2", "A2", "E2", "A2"]
+# pattern_down = ["G4", "B3", "C4", "B3", "D4", "B3", "E4", "B3"]
+#
+# finger_up_R = [1, 5, 4, 5, 3, 5, 2, 5]
+# finger_down_R = [5, 1, 2, 5, 3, 1, 4, 1]
+#
+# finger_up_L = [5, 1, 2, 1, 3, 1, 4, 1]
+# finger_down_L = [1, 5, 4, 5, 3, 5, 2, 5]
+#
+# alt_transition_L = ["B3", "G4", "F4", "G4", "E4", "G4", "D4", "C4"]
+# alt_transition_R = ["B4", "G5", "F5", "G5", "E5", "G5", "D5", "C5"]
+#
+# alt_transition_fingering_R = [1, 5, 4, 5, 3, 5, 2, 1]
+# alt_transition_fingering_L = [5, 1, 2, 1, 3, 1, 4, 5]
+#
+# alt_ending_L = ["A2", "C2", "D2", "C2", "E2", "C2", "F2", "E2"]
+# alt_ending_R = ["A3", "C3", "D3", "C3", "E3", "C3", "F3", "E3"]
+# alt_ending_fingering_R = [5, 1, 2, 1, 3, 1, 4, 3]
+# alt_ending_fingering_L = [1, 5, 4, 5, 3, 5, 2, 3]
 
-finger_up_R = [1, 5, 4, 5, 3, 5, 2, 5]
-finger_down_R = [5, 1, 2, 5, 3, 1, 4, 1]
+# 7
+pattern_up = ["C2", "E2", "D2", "F2", "E2", "G2", "F2", "E2"]
+pattern_down = ["G4", "E4", "F4", "D4", "E4", "C4", "D4", "E4"]
 
-finger_up_L = [5, 1, 2, 1, 3, 1, 4, 1]
-finger_down_L = [1, 5, 4, 5, 3, 5, 2, 5]
+finger_up_R = [1, 3, 2, 4, 3, 5, 4, 3]
+finger_down_R = [1, 3, 2, 4, 3, 1, 3, 4]
 
-alt_transition_L = ["B3", "G4", "F4", "G4", "E4", "G4", "D4", "C4"]
-alt_transition_R = ["B4", "G5", "F5", "G5", "E5", "G5", "D5", "C5"]
+finger_up_L = [5, 3, 4, 2, 3, 1, 3, 4]
+finger_down_L = [1, 3, 2, 4, 3, 5, 4, 3]
 
-alt_transition_fingering_R = [1, 5, 4, 5, 3, 5, 2, 1]
-alt_transition_fingering_L = [5, 1, 2, 1, 3, 1, 4, 5]
+alt_transition_L = ["B3", "D4", "C4", "E4", "D4", "F4", "E4", "D4"]
+alt_transition_R = ["B4", "D5", "C5", "E5", "D5", "F5", "E5", "D5"]
+alt_transition_fingering_R = [1, 3, 2, 4, 3, 5, 3, 2]
+alt_transition_fingering_L = [5, 3, 4, 2, 3, 1, 3, 4]
 
-alt_ending_L = ["A2", "C2", "D2", "C2", "E2", "C2", "F2", "E2"]
-alt_ending_R = ["A3", "C3", "D3", "C3", "E3", "C3", "F3", "E3"]
-alt_ending_fingering_R = [5, 1, 2, 1, 3, 1, 4, 3]
-alt_ending_fingering_L = [1, 5, 4, 5, 3, 5, 2, 3]
+alt_ending_L = ["A2", "F2", "G2", "E2", "F2", "D2", "E2", "F2"]
+alt_ending_R = ["A3", "F3", "G3", "E3", "F3", "D3", "E3", "F3"]
+alt_ending_fingering_R = [5, 3, 4, 2, 3, 1, 3, 4]
+alt_ending_fingering_L = [1, 3, 2, 4, 3, 5, 3, 2]
+
+amount = 14
 
 
 def make_sequence(pattern, hand, cycles, finger_pattern, direction):
@@ -172,7 +197,6 @@ def make_sequence(pattern, hand, cycles, finger_pattern, direction):
 
 
 complete = {"R": [], "L": []}
-amount = 14
 
 # Left
 

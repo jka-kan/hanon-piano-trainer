@@ -26,7 +26,7 @@ import argparse
 
 class App:
     def __init__(self, hands) -> None:
-        self.hands = hands
+        self.hands = hands.upper()
         self.filename = ""
         self.screen = None
         self.clock = None
@@ -188,7 +188,8 @@ class App:
             # Keep original timing relation for the grid logic
             # New pianoroll grid gets always the same time codes as previous ones
             # Time has to be adjusted to the midi time which is linear
-            time_diff = pygame.midi.time() / 1000 - rounds
+            time_diff = float(pygame.midi.time() / 1000 - rounds)
+            #            print("main time: ", pygame.midi.time())
 
             # Time is compared to the grid time codes
             # Until the current midi time is found in the grid vertical points of the grid, pixels are removed
@@ -198,7 +199,7 @@ class App:
             pixels_removed, metro, grid_finished, cur_time = self.grid_order[
                 0
             ].check_grid_table(time_diff)
-            print("time: ", (time.perf_counter() - start_time) * 1000)
+            #            print("time: ", (time.perf_counter() - start_time) * 1000)
             # print(
             #     "removed",
             #     pixels_removed,
@@ -216,8 +217,8 @@ class App:
             #     # Directly trigger a short MIDI tick (no audio, no events)
             #     midi_tick(received_time=time_diff)  # plays note_on, short gate, note_off
             # --- Time step ---
-            dt = self.clock.tick(1000) / 1000
-            print("dt: ", dt)
+            dt = self.clock.tick(120) / 1000
+            #            print("dt: ", dt)
             # Update sprites (they should move using precise_x internally)
             self.grid_group.update(pixels_removed, dt)
 
@@ -281,7 +282,7 @@ class App:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_KP_PLUS:
                         settings.bpm += 5
                         print("\nBPM: ", settings.bpm, "\n")

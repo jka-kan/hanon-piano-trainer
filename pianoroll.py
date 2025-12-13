@@ -17,7 +17,8 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M",
     force=True,
     # level=logging.DEBUG,
-    level=logging.INFO,
+    # level=logging.INFO,
+    level=logging.ERROR,
 )
 
 
@@ -151,7 +152,6 @@ class SlotContainer:
 
         # Find last key in user notes
         for key in reversed(self.slot_list.keys()):
-            # print(key, self.slots_all[key])
             if self.slot_list[key]:
                 last_note_slot_user = key
                 break
@@ -344,7 +344,7 @@ class Table:
                 # Points marked with metro will trigger metronome tick
                 metro = True
             else:
-              metro = False
+                metro = False
                 first_metro = False
 
             if pixel_nr % (pixels_per_beat / settings.line_division) == 0:
@@ -481,10 +481,10 @@ class PianoRollSprite(pygame.sprite.Sprite):
         # while True:
         try:
             while self.grid_table[0][1] <= clock:  # Was if
-                if self.grid_table[0][2]:
-                    metro = True
-                    # For future implementation of audio metronome
-                    # metro_queue.put(True)
+                # if self.grid_table[0][2]:
+                #     metro = True
+                # For future implementation of audio metronome
+                # metro_queue.put(True)
 
                 self.grid_table.pop(0)[4]
                 #                    logging.debug("clock: %s", clock)
@@ -498,12 +498,12 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
         except IndexError:
             grid_finished = True
-        print("time check: ", (perf_counter() - start_time) * 1000)
+        #        print("time check: ", (perf_counter() - start_time) * 1000)
         if self.grid_table:
             cur_time = self.grid_table[0][1]
         else:
             cur_time = -1
-            logging.debug("remove %s", pixels_removed)
+        #            logging.debug("remove %s", pixels_removed)
         return (pixels_removed, metro, grid_finished, cur_time)  # , line_time)
 
     def _draw_horiz_lines(self, surf):
@@ -820,9 +820,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
     def move(self, pixels, dt):
         self.rect.x -= pixels  # * dt
-
-    # def destroy(self):
-    #     self.kill()
 
     def update(self, rate, dt):
         # rebuild the sprite image from the pristine grid each frame

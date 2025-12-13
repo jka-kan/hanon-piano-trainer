@@ -1,6 +1,11 @@
-################
-# Just a simple editor to automatically create Hanon exercises.
+##############################################
 #
+# Just a simple editor to automatically create
+# Hanon exercises from patterns.
+#
+# Output format:
+# {hand: [ [piano key-duration-finger] ]}
+##############################################
 
 
 import itertools
@@ -139,24 +144,46 @@ alt_ending_fingering_R = []
 # alt_ending_fingering_L = [1, 5, 4, 5, 3, 5, 2, 3]
 
 # 7
-pattern_up = ["C2", "E2", "D2", "F2", "E2", "G2", "F2", "E2"]
-pattern_down = ["G4", "E4", "F4", "D4", "E4", "C4", "D4", "E4"]
+# pattern_up = ["C2", "E2", "D2", "F2", "E2", "G2", "F2", "E2"]
+# pattern_down = ["G4", "E4", "F4", "D4", "E4", "C4", "D4", "E4"]
+#
+# finger_up_R = [1, 3, 2, 4, 3, 5, 4, 3]
+# finger_down_R = [1, 3, 2, 4, 3, 1, 3, 4]
+#
+# finger_up_L = [5, 3, 4, 2, 3, 1, 3, 4]
+# finger_down_L = [1, 3, 2, 4, 3, 5, 4, 3]
+#
+# alt_transition_L = ["B3", "D4", "C4", "E4", "D4", "F4", "E4", "D4"]
+# alt_transition_R = ["B4", "D5", "C5", "E5", "D5", "F5", "E5", "D5"]
+# alt_transition_fingering_R = [1, 3, 2, 4, 3, 5, 3, 2]
+# alt_transition_fingering_L = [5, 3, 4, 2, 3, 1, 3, 4]
+#
+# alt_ending_L = ["A2", "F2", "G2", "E2", "F2", "D2", "E2", "F2"]
+# alt_ending_R = ["A3", "F3", "G3", "E3", "F3", "D3", "E3", "F3"]
+# alt_ending_fingering_R = [5, 3, 4, 2, 3, 1, 3, 4]
+# alt_ending_fingering_L = [1, 3, 2, 4, 3, 5, 3, 2]
+#
+# amount = 14
 
-finger_up_R = [1, 3, 2, 4, 3, 5, 4, 3]
-finger_down_R = [1, 3, 2, 4, 3, 1, 3, 4]
+# 8
+pattern_up = ["C2", "E2", "G2", "A2", "F2", "G2", "E2", "F2"]
+pattern_down = ["G4", "E4", "C4", "B3", "D4", "C4", "E4", "D4"]
 
-finger_up_L = [5, 3, 4, 2, 3, 1, 3, 4]
-finger_down_L = [1, 3, 2, 4, 3, 5, 4, 3]
+finger_up_R = [1, 2, 4, 5, 3, 4, 2, 3]
+finger_down_R = [5, 4, 2, 1, 3, 2, 4, 3]
 
-alt_transition_L = ["B3", "D4", "C4", "E4", "D4", "F4", "E4", "D4"]
-alt_transition_R = ["B4", "D5", "C5", "E5", "D5", "F5", "E5", "D5"]
-alt_transition_fingering_R = [1, 3, 2, 4, 3, 5, 3, 2]
-alt_transition_fingering_L = [5, 3, 4, 2, 3, 1, 3, 4]
+finger_up_L = [5, 4, 2, 1, 3, 2, 4, 3]
+finger_down_L = [1, 2, 4, 5, 3, 4, 2, 3]
 
-alt_ending_L = ["A2", "F2", "G2", "E2", "F2", "D2", "E2", "F2"]
-alt_ending_R = ["A3", "F3", "G3", "E3", "F3", "D3", "E3", "F3"]
-alt_ending_fingering_R = [5, 3, 4, 2, 3, 1, 3, 4]
-alt_ending_fingering_L = [1, 3, 2, 4, 3, 5, 3, 2]
+# alt_transition_L = ["B3", "D4", "C4", "E4", "D4", "F4", "E4", "D4"]
+# alt_transition_R = ["B4", "D5", "C5", "E5", "D5", "F5", "E5", "D5"]
+# alt_transition_fingering_R = [1, 3, 2, 4, 3, 5, 3, 2]
+# alt_transition_fingering_L = [5, 3, 4, 2, 3, 1, 3, 4]
+#
+# alt_ending_L = ["A2", "F2", "G2", "E2", "F2", "D2", "E2", "F2"]
+# alt_ending_R = ["A3", "F3", "G3", "E3", "F3", "D3", "E3", "F3"]
+# alt_ending_fingering_R = [5, 3, 4, 2, 3, 1, 3, 4]
+# alt_ending_fingering_L = [1, 3, 2, 4, 3, 5, 3, 2]
 
 amount = 14
 

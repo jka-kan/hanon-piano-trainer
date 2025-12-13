@@ -498,12 +498,10 @@ class PianoRollSprite(pygame.sprite.Sprite):
 
         except IndexError:
             grid_finished = True
-        #        print("time check: ", (perf_counter() - start_time) * 1000)
         if self.grid_table:
             cur_time = self.grid_table[0][1]
         else:
             cur_time = -1
-        #            logging.debug("remove %s", pixels_removed)
         return (pixels_removed, metro, grid_finished, cur_time)  # , line_time)
 
     def _draw_horiz_lines(self, surf):
@@ -517,8 +515,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
         x = 0
         color = ""
         for i in range(self.amount_vert_lines - 1):
-
-            #            self.all_vert_times.append(x)
 
             color = (
                 "white"
@@ -710,8 +706,6 @@ class PianoRollSprite(pygame.sprite.Sprite):
                     new_bar.playing = True
                     self.barcontainer.bars[pitch] = [new_bar]
 
-    #        print("\n\nbar container", self.barcontainer.bars, "\n")
-
     def find_two_nearest_values(self, data_list, target_value):
         """
         Finds the two nearest values to a target_value in a given list.
@@ -763,13 +757,11 @@ class PianoRollSprite(pygame.sprite.Sprite):
         removals = 0
 
         # Find nearest line
-
         # TODO: Put slice to match with divisions!!!
 
         prev_line_time, next_line_time, move_to_next = self.find_two_nearest_values(
             self.table.all_vert_times, note_time
         )
-
         # Was [0:41]
 
         logging.debug("all vert times %s ", self.table.all_vert_times)

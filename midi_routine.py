@@ -126,8 +126,6 @@ class MidiRoutine:
                 self.rounds += 1
                 adjusted = self.time_table[-1] + step
 
-            #            print("time_table 0: ", time_table[0], "time_table 1: ", time_table[1])
-            #            print("new adjusted: ", adjusted)
             # print(
             #     "\ntime table: ",
             #     self.time_table,
@@ -142,9 +140,6 @@ class MidiRoutine:
             # print("at midi time: ", midi_now)
             if midi_now >= self.time_table[0]:
                 try:
-                    # diff = round(received_time - self.prev_time, 4)
-                    # self.prev_time = received_time
-
                     # print(
                     #     "METRO out time: ",
                     #     pygame.midi.time() / 1000,
@@ -163,7 +158,7 @@ class MidiRoutine:
                 self.time_table.pop(0)
             else:
                 time.sleep(0.002)
-        # pygame.time.delay(5)
+
         # This was a test for receiving metronome signals from elsewhere. Didn't sync well.
         ###################################################################################
         # def midi_tick(
@@ -256,9 +251,7 @@ class MidiRoutine:
                             #     note = midi_event[0][1]
 
                     else:
-                        # continue
                         time.sleep(0.005)
-                        # pygame.time.delay(1)
                 except Exception as e:
                     logging.error(f"MIDI listen error: {e}")
                     time.sleep(0.1)

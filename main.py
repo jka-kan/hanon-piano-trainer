@@ -163,7 +163,6 @@ class App:
         # A note continuing from the old grid to the new is actually to notes connected
         self.grid_order[0].stop_continuing_bars()
 
-        # print("bar_container after init_roller: ", self.grid_order[1].barcontainer.bars)
         # print("\n\nGrid changed!\n\n")
 
     # -------------------- Main ---------------------------
@@ -173,9 +172,6 @@ class App:
         running = True
         rounds = 0
         pixels_removed = 0
-
-        # To be used later: adjust time gaps when starting new grid
-        #    midi_zero = pygame.midi.time()
 
         # Measure pauses in playing. After a pause check whether played notes match with song notes.
         pause_start = None
@@ -196,6 +192,7 @@ class App:
             # This is how line movement is perfectly synced with metronome ticks and midi in notes
             # Using clock caused out-of-sync
             start_time = time.perf_counter()
+
             pixels_removed, metro, grid_finished, cur_time = self.grid_order[
                 0
             ].check_grid_table(time_diff)
@@ -216,10 +213,10 @@ class App:
             # if metro:
             #     # Directly trigger a short MIDI tick (no audio, no events)
             #     midi_tick(received_time=time_diff)  # plays note_on, short gate, note_off
+
             # --- Time step ---
             dt = self.clock.tick(120) / 1000
-            #            print("dt: ", dt)
-            # Update sprites (they should move using precise_x internally)
+            # Update sprites
             self.grid_group.update(pixels_removed, dt)
 
             # Read incoming midi notes and draw bars on the grid
@@ -353,7 +350,6 @@ if __name__ == "__main__":
 
     app = App(args.hands)
     app.init_pygame()
-    #    app.hands = args.hands
 
     app.init_midi()
     app.init_app(first=True)

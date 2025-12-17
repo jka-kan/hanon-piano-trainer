@@ -17,8 +17,8 @@ logging.basicConfig(level=logging.INFO)
 
 class MidiRoutine:
     def __init__(self) -> None:
-        self.device_id_input = 5  # Change DEVICE IN number if needed
-        self.device_id_output = 4  # Change DEVICE OUT
+        self.device_id_input = 3  # Change DEVICE IN number if needed
+        self.device_id_output = 2  # Change DEVICE OUT
         self.midi_in = None
         self.output = None
         self.midi_queue = queue.Queue()
@@ -31,7 +31,13 @@ class MidiRoutine:
 
     def midi_init(self):
         for dev in range(pygame.midi.get_count()):
-            print(pygame.midi.get_device_info(dev))
+            #            print(pygame.midi.get_device_info(dev))
+            id = pygame.midi.get_device_info(dev)
+            if id[3] == 1:
+                port = "Output"
+            else:
+                port = "Input"
+            print("Device id:", dev, "Port: ", port, "Device: ", id)
 
         device_id = pygame.midi.get_default_input_id()
         print("dev", device_id, pygame.midi.get_device_info(5))

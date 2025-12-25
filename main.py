@@ -172,7 +172,7 @@ class App:
         running = True
         rounds = 0
         pixels_removed = 0
-
+        log = None
         # Measure pauses in playing. After a pause check whether played notes match with song notes.
         pause_start = None
 
@@ -342,10 +342,16 @@ class App:
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("bpm", type=int, help="BPM")
-    parser.add_argument("hands", type=str, help="Hands")
+    # parser.add_argument("-s", "--stats", action="store_false")
+
+    parser.add_argument("bpm", type=int, nargs="?", help="BPM")
+    parser.add_argument("hands", type=str, nargs="?", help="Hands")
     parser.add_argument("song", type=str, nargs="?", help="Song name")
     args = parser.parse_args()
+    # args = parser.parse_args(["-s"])
+
+    # print("voppa", args)
+    # raise
     settings.bpm = args.bpm
 
     app = App(args.hands)

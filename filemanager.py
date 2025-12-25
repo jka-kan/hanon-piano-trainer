@@ -3,17 +3,6 @@ import yaml
 filename = ""
 
 
-def bakload_song(name):
-    path = "songs/hanon/" + str(name) + "/"
-    filename = path + str(name) + ".sng"
-    # log_result(name, 0.2000, 40)
-    with open(filename, "r") as f:
-        file = ""
-        for line in f:
-            file += line
-    return file
-
-
 def load_song(name):
     path = "songs/hanon/" + str(name) + "/"
     filename = path + str(name) + ".sng"
@@ -55,23 +44,26 @@ def log_result(name, result, bpm, hands):
         highest_session = 0
     log["results"][hands][bpm][highest_session + 1] = result
 
-    with open(filename, "w") as f:
-        yaml.dump(log, f)
+    if name:
+        with open(filename, "w") as f:
+            yaml.dump(log, f)
+    print_results(log, hands)
+    return log
+
+
+def print_results(log, hand):
 
     print("\nRESULTS:\n********\n")
 
-    for hand in log["results"]:
-        print("Hand: ", hand, "\n")
-        for tempo in log["results"][hand]:
-            print("bpm: ", tempo)
-            all_results = []
+    #    for hand in log["results"]:
+    print("Hand: ", hand, "\n")
+    for tempo in log["results"][hand]:
+        print("bpm: ", tempo)
+        all_results = []
 
-            for session in log["results"][hand][tempo]:
-                accuracy = log["results"][hand][tempo][session]
-                print("      --- ", session, ":", accuracy)
-                all_results.append(accuracy)
-            print("Best result in tempo", tempo, ": ", max(all_results), "\n")
-        print("------------------")
-
-
-#    print("\n\nALL RESULTS: ", log["results"], "\n\n")
+        for session in log["results"][hand][tempo]:
+            accuracy = log["results"][hand][tempo][session]
+            print("      --- ", session, ":", accuracy)
+            all_results.append(accuracy)
+        print("Best result in tempo", tempo, ": ", max(all_results), "\n")
+    print("------------------")

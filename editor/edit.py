@@ -255,18 +255,153 @@ alt_ending_fingering_R = []
 # amount_up = 14
 # amount_down = 15
 
-# 13
-pattern_up = ["E2", "C2", "F2", "D2", "G2", "E2", "F2", "G2"]
-pattern_down = ["E4", "G4", "D4", "F4", "E4", "C4", "D4", "E4"]
+# # 13
+# pattern_up = ["E2", "C2", "F2", "D2", "G2", "E2", "F2", "G2"]
+# pattern_down = ["E4", "G4", "D4", "F4", "E4", "C4", "D4", "E4"]
+#
+# finger_up_R = [3, 1, 4, 2, 5, 3, 4, 5]
+# finger_down_R = [3, 5, 2, 4, 3, 1, 3, 4]
+#
+# finger_up_L = [3, 5, 2, 4, 1, 3, 2, 1]
+# finger_down_L = [3, 1, 4, 2, 3, 5, 3, 2]
+#
+# amount_up = 14
+# amount_down = 14
 
-finger_up_R = [3, 1, 4, 2, 5, 3, 4, 5]
-finger_down_R = [3, 5, 2, 4, 3, 1, 3, 4]
+# # 14
+# pattern_up = ["C2", "D2", "F2", "E2", "F2", "E2", "G2", "F2"]
+# pattern_down = ["G4", "F4", "D4", "E4", "D4", "E4", "C4", "D4"]
+#
+# finger_up_R = [1, 2, 4, 3, 4, 3, 5, 4]
+# finger_down_R = [5, 4, 2, 3, 2, 3, 1, 3]
+#
+# finger_up_L = [5, 4, 2, 3, 2, 3, 1, 3]
+# finger_down_L = [1, 2, 4, 3, 4, 3, 5, 4]
+#
+# amount_up = 14
+# amount_down = 14
 
-finger_up_L = [3, 5, 2, 4, 1, 3, 2, 1]
-finger_down_L = [3, 1, 4, 2, 3, 5, 3, 2]
+# # 15
+# pattern_up = ["C2", "E2", "D2", "F2", "E2", "G2", "F2", "A2"]
+# pattern_down = ["G4", "E4", "F4", "D4", "E4", "C4", "D4", "B3"]
+#
+# finger_up_R = [1, 2, 1, 3, 2, 4, 3, 5]
+# finger_down_R = [5, 3, 4, 2, 3, 1, 2, 1]
+#
+# finger_up_L = [5, 3, 4, 2, 3, 1, 2, 1]
+# finger_down_L = [1, 2, 1, 3, 2, 4, 3, 5]
+#
+# alt_transition_R = ["B4", "D5", "C5", "E5", "D5", "F5", "E5", "F5"]
+# alt_transition_L = ["B3", "D4", "C4", "E4", "D4", "F4", "E4", "F4"]
+#
+# alt_transition_fingering_R = [1, 2, 1, 3, 2, 4, 3, 4]
+# alt_transition_fingering_L = [5, 3, 4, 2, 3, 1, 3, 2]
+#
+# alt_ending_R = ["A3", "F3", "G3", "E3", "F3", "D3", "E3", "D3"]
+# alt_ending_L = ["A2", "F2", "G2", "E2", "F2", "D2", "E2", "D2"]
+#
+# alt_ending_fingering_R = [5, 3, 4, 2, 3, 1, 3, 2]
+# alt_ending_fingering_L = [1, 2, 1, 3, 2, 4, 3, 4]
+#
+# amount_up = 14
+# amount_down = 14
 
-amount_up = 14
-amount_down = 14
+# # 16
+# pattern_up = ["C2", "E2", "D2", "E2", "A2", "G2", "F2", "G2"]
+# pattern_down = ["G4", "D4", "E4", "D4", "B3", "C4", "D4", "C4"]
+#
+# finger_up_R = [1, 3, 2, 3, 5, 4, 3, 4]
+# finger_down_R = [5, 2, 3, 2, 1, 2, 3, 2]
+#
+# finger_up_L = [5, 3, 4, 3, 1, 2, 3, 2]
+# finger_down_L = [1, 3, 2, 3, 5, 4, 3, 4]
+#
+# amount_up = 14
+# amount_down = 14
+
+# # 17
+# pattern_up = ["C2", "E2", "A2", "G2", "B2", "A2", "G2", "A2"]
+# pattern_down = ["G4", "D4", "B3", "C4", "A3", "B3", "C4", "A3"]
+#
+# finger_up_R = [1, 2, 4, 3, 5, 4, 3, 4]
+# finger_down_R = [5, 3, 2, 3, 1, 2, 3, 1]
+#
+# finger_up_L = [5, 4, 2, 3, 1, 2, 3, 2]
+# finger_down_L = [1, 2, 4, 3, 5, 4, 3, 5]
+#
+# alt_transition_R = ["B4", "D5", "G5", "F5", "A5", "G5", "F5", "E5"]
+# alt_transition_L = ["B3", "D4", "G4", "F4", "A4", "G4", "F4", "E4"]
+#
+# alt_transition_fingering_R = [1, 2, 4, 3, 5, 4, 3, 2]
+# alt_transition_fingering_L = [5, 4, 2, 3, 1, 2, 3, 4]
+#
+# alt_ending_R = ["B3", "F3", "D3", "E3", "C3", "D3", "E3", "D3"]
+# alt_ending_L = ["B2", "F2", "D2", "E2", "C2", "D2", "E2", "D2"]
+#
+# alt_ending_fingering_R = [5, 3, 2, 3, 1, 2, 3, 1]
+# alt_ending_fingering_L = [1, 2, 4, 3, 5, 4, 3, 5]
+#
+#
+# amount_up = 14
+# amount_down = 13
+
+# # 18
+# pattern_up = ["C2", "D2", "F2", "E2", "G2", "F2", "D2", "E2"]
+# pattern_down = ["G4", "F4", "D4", "E4", "C4", "D4", "F4", "E4"]
+#
+# finger_up_R = [1, 2, 4, 3, 5, 4, 2, 3]
+# finger_down_R = [5, 4, 2, 3, 1, 2, 4, 3]
+#
+# finger_up_L = [5, 4, 2, 3, 1, 2, 4, 3]
+# finger_down_L = [1, 2, 4, 3, 5, 4, 2, 3]
+#
+# alt_transition_R = ["B4", "C5", "E5", "D5", "F5", "E5", "C5", "D5"]
+# alt_transition_L = ["B3", "C4", "E4", "D4", "F4", "E4", "C4", "D4"]
+#
+# alt_transition_fingering_R = [1, 2, 4, 3, 5, 4, 1, 2]
+# alt_transition_fingering_L = [5, 4, 2, 3, 1, 2, 5, 4]
+#
+# alt_ending_R = ["A3", "G3", "E3", "F3", "D3", "E3", "G3", "F3"]
+# alt_ending_L = ["A2", "G2", "E2", "F2", "D2", "E2", "G2", "F2"]
+#
+# alt_ending_fingering_R = [5, 5, 2, 3, 1, 4, 5, 4]
+# alt_ending_fingering_L = [1, 2, 4, 3, 5, 4, 1, 2]
+#
+#
+# amount_up = 14
+# amount_down = 14
+
+# # 19
+# pattern_up = ["C2", "A2", "F2", "G2", "A2", "F2", "E2", "G2"]
+# pattern_down = ["G4", "B3", "D4", "C4", "B3", "D4", "E4", "C4"]
+#
+# finger_up_R = [1, 5, 3, 4, 5, 3, 2, 4]
+# finger_down_R = [5, 1, 3, 2, 1, 3, 4, 2]
+#
+# finger_up_L = [5, 1, 3, 2, 1, 3, 4, 2]
+# finger_down_L = [1, 5, 3, 4, 5, 3, 2, 4]
+#
+# amount_up = 14
+# amount_down = 14
+
+# 20
+pattern_up = ["E2", "G2", "C3", "E3", "C3", "B2", "C3", "A2"]
+pattern_down = ["E5", "C5", "G4", "E4", "G4", "F4", "G4", "E4"]
+
+finger_up_R = [1, 2, 5, 4, 4, 3, 4, 2]
+finger_down_R = [1, 2, 4, 5, 3, 4, 3, 5]
+
+finger_up_L = [5, 4, 2, 1, 2, 3, 4, 2]
+finger_down_L = [1, 2, 4, 5, 3, 4, 3, 5]
+
+alt_ending_R = ["E4", "C4", "G3", "E3", "G3", "F3", "G3", "F3"]
+alt_ending_L = ["E3", "C3", "G2", "E2", "G2", "F2", "G2", "F2"]
+
+alt_ending_fingering_R = [5, 5, 2, 3, 3, 2, 3, 2]
+alt_ending_fingering_L = [1, 2, 4, 5, 3, 4, 3, 4]
+
+amount_up = 15
+amount_down = 15
 
 
 def make_sequence(pattern, hand, cycles, finger_pattern, direction):

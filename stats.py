@@ -70,9 +70,9 @@ colorama_init()
 txt_colors = [Fore.YELLOW, Fore.RESET]
 
 print()
-header = "".join("SONG".ljust(12))
-header += "".join("RIGHT".ljust(27))
-header += "".join("LEFT".ljust(27))
+header = "".join("SONG".ljust(14))
+header += "".join("RIGHT".ljust(25))
+header += "".join("LEFT".ljust(25))
 header += "".join("BOTH".ljust(10))
 print(header)
 print("-" * 90)
@@ -82,16 +82,14 @@ for song_nr in sorted_keys:
     path = "hanon/" + str(song_nr)
     line += "".join(path.ljust(10))
     for hand in table[path]:
-        line += (
-            hand
-            + "  bpm: "
-            + (
-                str(table[path][hand][0])
-                + "  acc: "
-                + str(round(table[path][hand][1] * 100))
-                + " %    "
-            )
-        )
+        try:
+            bpm_line = str(table[path][hand][0])
+            acc_line = str(round(table[path][hand][1] * 100))
+        except TypeError:
+            bpm_line = "--"
+            acc_line = "--"
+
+        line += hand + "  bpm: " + (bpm_line + "  acc: " + acc_line + " %    ")
 
     # line = (
     #     "{color}"

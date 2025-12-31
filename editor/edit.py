@@ -230,30 +230,30 @@ alt_ending_fingering_R = []
 
 # amount = 14
 
-# 12
-#### First measure is different, changed manually !!!
-# pattern_up = ["A2", "C2", "E2", "D2", "C2", "D2", "E2", "C2"]
-# pattern_down = ["B3", "G4", "E4", "F4", "G4", "F4", "E4", "G4"]
-#
-# finger_up_R = [5, 1, 3, 2, 1, 2, 3, 1]
-# finger_down_R = [1, 5, 3, 4, 5, 4, 3, 5]
-#
-# finger_up_L = [1, 5, 3, 4, 5, 4, 3, 5]
-# finger_down_L = [5, 1, 3, 2, 1, 2, 3, 1]
-#
-# alt_transition_L = ["G4", "B3", "D4", "C4", "B3", "C4", "D4", "E4"]
-# alt_transition_R = ["G5", "B4", "D5", "C5", "B4", "C5", "D5", "E5"]
-# alt_transition_fingering_R = [5, 1, 3, 2, 1, 2, 3, 4]
-# alt_transition_fingering_L = [1, 5, 2, 3, 5, 4, 3, 2]
-#
-# alt_ending_L = ["C2", "G2", "E2", "F2", "G2", "F2", "E2", "F2"]
-# alt_ending_R = ["C3", "G3", "E3", "F3", "G3", "F3", "E3", "F3"]
-# alt_ending_fingering_R = [1, 5, 3, 4, 5, 4, 3, 4]
-# alt_ending_fingering_L = [5, 1, 3, 2, 1, 2, 3, 2]
-#
-# # Amount logic changed here !!!!
-# amount_up = 14
-# amount_down = 15
+12
+### First measure is different, changed manually !!!
+pattern_up = ["A2", "C2", "E2", "D2", "C2", "D2", "E2", "C2"]
+pattern_down = ["B3", "G4", "E4", "F4", "G4", "F4", "E4", "G4"]
+
+finger_up_R = [5, 1, 3, 2, 1, 2, 3, 1]
+finger_down_R = [1, 5, 3, 4, 5, 4, 3, 5]
+
+finger_up_L = [1, 5, 3, 4, 5, 4, 3, 5]
+finger_down_L = [5, 1, 3, 2, 1, 2, 3, 1]
+
+alt_transition_L = ["G4", "B3", "D4", "C4", "B3", "C4", "D4", "E4"]
+alt_transition_R = ["G5", "B4", "D5", "C5", "B4", "C5", "D5", "E5"]
+alt_transition_fingering_R = [5, 1, 3, 2, 1, 2, 3, 4]
+alt_transition_fingering_L = [1, 5, 2, 3, 5, 4, 3, 2]
+
+alt_ending_L = ["C2", "G2", "E2", "F2", "G2", "F2", "E2", "F2"]
+alt_ending_R = ["C3", "G3", "E3", "F3", "G3", "F3", "E3", "F3"]
+alt_ending_fingering_R = [1, 5, 3, 4, 5, 4, 3, 4]
+alt_ending_fingering_L = [5, 1, 3, 2, 1, 2, 3, 2]
+
+# Amount logic changed here !!!!
+amount_up = 14
+amount_down = 15
 
 # # 13
 # pattern_up = ["E2", "C2", "F2", "D2", "G2", "E2", "F2", "G2"]
@@ -384,24 +384,30 @@ alt_ending_fingering_R = []
 # amount_up = 14
 # amount_down = 14
 
-# 20
-pattern_up = ["E2", "G2", "C3", "E3", "C3", "B2", "C3", "A2"]
-pattern_down = ["E5", "C5", "G4", "E4", "G4", "F4", "G4", "E4"]
-
-finger_up_R = [1, 2, 5, 4, 4, 3, 4, 2]
-finger_down_R = [1, 2, 4, 5, 3, 4, 3, 5]
-
-finger_up_L = [5, 4, 2, 1, 2, 3, 4, 2]
-finger_down_L = [1, 2, 4, 5, 3, 4, 3, 5]
-
-alt_ending_R = ["E4", "C4", "G3", "E3", "G3", "F3", "G3", "F3"]
-alt_ending_L = ["E3", "C3", "G2", "E2", "G2", "F2", "G2", "F2"]
-
-alt_ending_fingering_R = [5, 5, 2, 3, 3, 2, 3, 2]
-alt_ending_fingering_L = [1, 2, 4, 5, 3, 4, 3, 4]
-
-amount_up = 15
-amount_down = 15
+# # 20
+# pattern_up = ["E2", "G2", "C3", "E3", "C3", "B2", "C3", "A2"]
+# pattern_down = ["E5", "C5", "G4", "E4", "G4", "F4", "G4", "E4"]
+#
+# finger_up_R = [1, 2, 5, 4, 4, 3, 4, 2]
+# finger_down_R = [1, 2, 4, 5, 3, 4, 3, 5]
+#
+# finger_up_L = [5, 4, 2, 1, 2, 3, 4, 2]
+# finger_down_L = [1, 2, 4, 5, 3, 4, 3, 5]
+#
+# alt_transition_R = ["E5", "G5", "C6", "E6", "C6", "B5", "C6", "G5"]
+# alt_transition_L = ["E4", "G4", "C5", "E5", "C5", "B4", "C5", "G4"]
+#
+# alt_transition_fingering_R = [1, 2, 4, 5, 4, 3, 4, 2]
+# alt_transition_fingering_L = [5, 4, 2, 1, 2, 3, 2, 4]
+#
+# alt_ending_R = ["E4", "C4", "G3", "E3", "G3", "F3", "G3", "F3"]
+# alt_ending_L = ["E3", "C3", "G2", "E2", "G2", "F2", "G2", "F2"]
+#
+# alt_ending_fingering_R = [5, 5, 2, 3, 3, 2, 3, 2]
+# alt_ending_fingering_L = [1, 2, 4, 5, 3, 4, 3, 4]
+#
+# amount_up = 15
+# amount_down = 15
 
 
 def make_sequence(pattern, hand, cycles, finger_pattern, direction):
